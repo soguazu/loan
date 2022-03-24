@@ -11,8 +11,11 @@ import (
 )
 
 var (
-	DBConnection      *gorm.DB
-	CompanyRepository ports.ICompanyRepository
+	DBConnection              *gorm.DB
+	CompanyRepository         ports.ICompanyRepository
+	AddressRepository         ports.IAddressRepository
+	BusinessHeadRepository    ports.IBusinessHeadRepository
+	BusinessPartnerRepository ports.IBusinessPartnerRepository
 )
 
 func TestMain(m *testing.M) {
@@ -32,6 +35,18 @@ func TestMain(m *testing.M) {
 
 func instantiateRepos() {
 	CompanyRepository = &companyRepository{
+		db: DBConnection,
+	}
+
+	AddressRepository = &addressRepository{
+		db: DBConnection,
+	}
+
+	BusinessHeadRepository = &businessHeadRepository{
+		db: DBConnection,
+	}
+
+	BusinessPartnerRepository = &businessPartnerRepository{
 		db: DBConnection,
 	}
 }

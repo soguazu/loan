@@ -54,13 +54,6 @@ type UpdateCompanyRequest struct {
 	NoOfEmployee  *int32  `json:"no_of_employee,omitempty"`
 }
 
-// GetAllCompanyResponse DTO get all companies
-type GetAllCompanyResponse struct {
-	Success bool             `json:"success"`
-	Message string           `json:"message"`
-	Data    utils.Pagination `json:"data"`
-}
-
 // CreateCompanyResponse DTO get all companies
 type CreateCompanyResponse struct {
 	Success bool           `json:"success"`

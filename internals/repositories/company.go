@@ -45,17 +45,17 @@ func (c *companyRepository) Get(pagination *utils.Pagination) (*utils.Pagination
 	return pagination, nil
 }
 
-func (c *companyRepository) Persist(company *domain.Company) (*domain.Company, error) {
+func (c *companyRepository) Persist(company *domain.Company) error {
 	if company.ID.String() != "" {
 		if err := c.db.Save(company).Error; err != nil {
-			return nil, err
+			return err
 		}
-		return company, nil
+		return nil
 	}
 	if err := c.db.Create(&company).Error; err != nil {
-		return nil, err
+		return err
 	}
-	return company, nil
+	return nil
 }
 
 func (c *companyRepository) Delete(id string) error {

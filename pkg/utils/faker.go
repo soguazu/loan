@@ -65,3 +65,13 @@ func (f *Faker) RandomFundSource() string {
 func (f *Faker) RandomNoOfEmployee() int32 {
 	return f.RandomInt(0, 10)
 }
+
+// RandomNo generates random numbers
+func (f *Faker) RandomNo() int32 {
+	return f.RandomInt(0, 10)
+}
+
+// RandomAddress generates random address
+func (f *Faker) RandomAddress() string {
+	return fmt.Sprintf("%v %v", f.RandomInt(0, 10), f.RandomName())
+}

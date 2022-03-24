@@ -17,6 +17,6 @@ const (
 )
 
 // GetResponseMessage generates dynamic messages
-func (m *Messages) GetResponseMessage(entity, message Messages) string {
+func (m *Messages) GetResponseMessage(entity string, message Messages) string {
 	return fmt.Sprintf("%v %v", entity, message)
 }

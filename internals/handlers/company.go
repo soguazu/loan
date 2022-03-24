@@ -16,19 +16,20 @@ import (
 type companyHandler struct {
 	CompanyService ports.ICompanyService
 	logger         *log.Logger
+	handlerName    string
 }
 
 var (
-	result      utils.Result
-	message     types.Messages
-	handlerName types.Messages = "Company"
+	result  utils.Result
+	message types.Messages
 )
 
 // NewCompanyHandler function creates a new instance for company handler
-func NewCompanyHandler(cs ports.ICompanyService, l *log.Logger) ports.ICompanyHandler {
-	return companyHandler{
+func NewCompanyHandler(cs ports.ICompanyService, l *log.Logger, n string) ports.ICompanyHandler {
+	return &companyHandler{
 		CompanyService: cs,
 		logger:         l,
+		handlerName:    n,
 	}
 }
 
@@ -64,7 +65,7 @@ func (ch companyHandler) GetCompanyByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, result.ReturnSuccessResult(company, message.GetResponseMessage(handlerName, types.OKAY)))
+	c.JSON(http.StatusOK, result.ReturnSuccessResult(company, message.GetResponseMessage(ch.handlerName, types.OKAY)))
 }
 
 // GetAllCompany godoc
@@ -76,7 +77,7 @@ func (ch companyHandler) GetCompanyByID(c *gin.Context) {
 // @Param        limit   query  int  false  "Page size"
 // @Param        page   query  int  false  "Page no"
 // @Param        sort   query  string  false  "Sort by"
-// @Success      200  {object}  common.GetAllCompanyResponse
+// @Success      200  {object}  common.GetAllResponse
 // @Failure      500  {object}  common.Error
 // @Router       /company [get]
 func (ch companyHandler) GetAllCompany(c *gin.Context) {
@@ -93,7 +94,7 @@ func (ch companyHandler) GetAllCompany(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, result.ReturnErrorResult(err.Error()))
 		return
 	}
-	c.JSON(http.StatusOK, result.ReturnSuccessResult(companies, message.GetResponseMessage(handlerName, types.OKAY)))
+	c.JSON(http.StatusOK, result.ReturnSuccessResult(companies, message.GetResponseMessage(ch.handlerName, types.OKAY)))
 }
 
 // CreateCompany godoc
@@ -114,7 +115,8 @@ func (ch companyHandler) CreateCompany(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
 		return
 	}
-	reqBody := &domain.Company{
+
+	company := &domain.Company{
 		Owner:         body.Owner,
 		Name:          body.Name,
 		Website:       body.Website,
@@ -122,14 +124,15 @@ func (ch companyHandler) CreateCompany(c *gin.Context) {
 		FundingSource: body.FundingSource,
 		NoOfEmployee:  body.NoOfEmployee,
 	}
-	company, err := ch.CompanyService.CreateCompany(reqBody)
+
+	err := ch.CompanyService.CreateCompany(company)
 	if err != nil {
 		ch.logger.Error(err)
 		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusCreated, result.ReturnSuccessResult(company, message.GetResponseMessage(handlerName, types.CREATED)))
+	c.JSON(http.StatusCreated, result.ReturnSuccessResult(company, message.GetResponseMessage(ch.handlerName, types.CREATED)))
 }
 
 // DeleteCompany godoc
@@ -174,7 +177,7 @@ func (ch companyHandler) DeleteCompany(c *gin.Context) {
 // @Router       /company/{id} [patch]
 func (ch companyHandler) UpdateCompany(c *gin.Context) {
 	var body common.UpdateCompanyRequest
-	var params common.GetCompanyByIDRequest
+	var params common.GetByIDRequest
 
 	if err := c.ShouldBindUri(&params); err != nil {
 		ch.logger.Error(err)
@@ -194,5 +197,5 @@ func (ch companyHandler) UpdateCompany(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, result.ReturnErrorResult(err.Error()))
 		return
 	}
-	c.JSON(http.StatusOK, result.ReturnSuccessResult(company, message.GetResponseMessage(handlerName, types.UPDATED)))
+	c.JSON(http.StatusOK, result.ReturnSuccessResult(company, message.GetResponseMessage(ch.handlerName, types.UPDATED)))
 }
