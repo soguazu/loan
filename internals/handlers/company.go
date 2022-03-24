@@ -45,7 +45,7 @@ func NewCompanyHandler(cs ports.ICompanyService, l *log.Logger, n string) ports.
 // @Failure      404  {object}  common.Error
 // @Failure      500  {object}  common.Error
 // @Router       /company/{id} [get]
-func (ch companyHandler) GetCompanyByID(c *gin.Context) {
+func (ch *companyHandler) GetCompanyByID(c *gin.Context) {
 	var params common.GetCompanyByIDRequest
 	if err := c.ShouldBindUri(&params); err != nil {
 		ch.logger.Error(err)
@@ -80,7 +80,7 @@ func (ch companyHandler) GetCompanyByID(c *gin.Context) {
 // @Success      200  {object}  common.GetAllResponse
 // @Failure      500  {object}  common.Error
 // @Router       /company [get]
-func (ch companyHandler) GetAllCompany(c *gin.Context) {
+func (ch *companyHandler) GetAllCompany(c *gin.Context) {
 	var query utils.Pagination
 	if err := c.ShouldBindQuery(&query); err != nil {
 		ch.logger.Error(err)
@@ -108,7 +108,7 @@ func (ch companyHandler) GetAllCompany(c *gin.Context) {
 // @Failure      400  {object}  common.Error
 // @Failure      500  {object}  common.Error
 // @Router       /company [post]
-func (ch companyHandler) CreateCompany(c *gin.Context) {
+func (ch *companyHandler) CreateCompany(c *gin.Context) {
 	var body common.CreateCompanyRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
 		ch.logger.Error(err, "###")
@@ -146,7 +146,7 @@ func (ch companyHandler) CreateCompany(c *gin.Context) {
 // @Failure      404  {object}  common.Error
 // @Failure      500  {object}  common.Error
 // @Router       /company/{id} [delete]
-func (ch companyHandler) DeleteCompany(c *gin.Context) {
+func (ch *companyHandler) DeleteCompany(c *gin.Context) {
 	var query common.GetCompanyByIDRequest
 	if err := c.ShouldBindUri(&query); err != nil {
 		ch.logger.Error(err)
@@ -175,7 +175,7 @@ func (ch companyHandler) DeleteCompany(c *gin.Context) {
 // @Failure      404  {object}  common.Error
 // @Failure      500  {object}  common.Error
 // @Router       /company/{id} [patch]
-func (ch companyHandler) UpdateCompany(c *gin.Context) {
+func (ch *companyHandler) UpdateCompany(c *gin.Context) {
 	var body common.UpdateCompanyRequest
 	var params common.GetByIDRequest
 

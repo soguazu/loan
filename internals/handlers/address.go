@@ -41,7 +41,7 @@ func NewAddressHandler(cs ports.IAddressService, l *log.Logger, n string) ports.
 // @Failure      404  {object}  common.Error
 // @Failure      500  {object}  common.Error
 // @Router       /address/{id} [get]
-func (ah addressHandler) GetAddressByID(c *gin.Context) {
+func (ah *addressHandler) GetAddressByID(c *gin.Context) {
 	var params common.GetByIDRequest
 	if err := c.ShouldBindUri(&params); err != nil {
 		ah.logger.Error(err)
@@ -123,7 +123,7 @@ func (ah *addressHandler) GetAddressByCompanyID(c *gin.Context) {
 // @Success      200  {object}  common.GetAllResponse
 // @Failure      500  {object}  common.Error
 // @Router       /address [get]
-func (ah addressHandler) GetAllAddress(c *gin.Context) {
+func (ah *addressHandler) GetAllAddress(c *gin.Context) {
 	var query utils.Pagination
 	if err := c.ShouldBindQuery(&query); err != nil {
 		ah.logger.Error(err)
@@ -151,7 +151,7 @@ func (ah addressHandler) GetAllAddress(c *gin.Context) {
 // @Failure      400  {object}  common.Error
 // @Failure      500  {object}  common.Error
 // @Router       /address [post]
-func (ah addressHandler) CreateAddress(c *gin.Context) {
+func (ah *addressHandler) CreateAddress(c *gin.Context) {
 	var body common.CreateAddressRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
 		ah.logger.Error(err)
@@ -189,7 +189,7 @@ func (ah addressHandler) CreateAddress(c *gin.Context) {
 // @Failure      404  {object}  common.Error
 // @Failure      500  {object}  common.Error
 // @Router       /address/{id} [delete]
-func (ah addressHandler) DeleteAddress(c *gin.Context) {
+func (ah *addressHandler) DeleteAddress(c *gin.Context) {
 	var query common.GetByIDRequest
 	if err := c.ShouldBindUri(&query); err != nil {
 		ah.logger.Error(err)
@@ -218,7 +218,7 @@ func (ah addressHandler) DeleteAddress(c *gin.Context) {
 // @Failure      404  {object}  common.Error
 // @Failure      500  {object}  common.Error
 // @Router       /address/{id} [patch]
-func (ah addressHandler) UpdateAddress(c *gin.Context) {
+func (ah *addressHandler) UpdateAddress(c *gin.Context) {
 	var body common.UpdateAddressRequest
 	var params common.GetByIDRequest
 
