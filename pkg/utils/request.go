@@ -11,11 +11,13 @@ import (
 	"time"
 )
 
+// Client model request
 type Client struct {
 	BaseURL string
 	Header  map[string]string
 }
 
+// GET method for carrying out get request
 func (r *Client) GET(method, link string, params map[string]string) ([]byte, error) {
 	var (
 		req *http.Request
@@ -66,6 +68,7 @@ func (r *Client) GET(method, link string, params map[string]string) ([]byte, err
 	return body, nil
 }
 
+// CHANGE method for carrying out get request
 func (r *Client) CHANGE(method, url string, payload []byte) ([]byte, error) {
 	endpoint := fmt.Sprintf("%v/%v", r.BaseURL, url)
 	req, err := http.NewRequest(method, endpoint, bytes.NewBuffer(payload))
@@ -100,6 +103,7 @@ func (r *Client) CHANGE(method, url string, payload []byte) ([]byte, error) {
 	return body, nil
 }
 
+// SetHeader method for setting header
 func (r *Client) SetHeader(request *http.Request) {
 	for _, header := range r.Header {
 		request.Header.Set(header, r.Header[header])
