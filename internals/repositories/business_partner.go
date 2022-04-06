@@ -1,9 +1,9 @@
 package repositories
 
 import (
-	"github.com/soguazu/core_business/internals/core/domain"
-	"github.com/soguazu/core_business/internals/core/ports"
-	"github.com/soguazu/core_business/pkg/utils"
+	"core_business/internals/core/domain"
+	"core_business/internals/core/ports"
+	"core_business/pkg/utils"
 	"gorm.io/gorm"
 )
 

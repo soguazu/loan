@@ -5,11 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
-	"github.com/soguazu/core_business/internals/common"
-	"github.com/soguazu/core_business/internals/common/types"
-	"github.com/soguazu/core_business/internals/core/domain"
-	"github.com/soguazu/core_business/internals/core/ports"
-	"github.com/soguazu/core_business/pkg/utils"
+	"core_business/internals/common"
+	"core_business/internals/common/types"
+	"core_business/internals/core/domain"
+	"core_business/internals/core/ports"
+	"core_business/pkg/utils"
 	"gorm.io/gorm"
 	"net/http"
 )
@@ -122,7 +122,7 @@ func (bh *businessHeadHandler) GetBusinessHeadByCompanyID(c *gin.Context) {
 // @Param        sort   query  string  false  "Sort by"
 // @Success      200  {object}  common.GetAllResponse
 // @Failure      500  {object}  common.Error
-// @Router       /address [get]
+// @Router       /business_head [get]
 func (bh *businessHeadHandler) GetAllBusinessHead(c *gin.Context) {
 	var query utils.Pagination
 	if err := c.ShouldBindQuery(&query); err != nil {

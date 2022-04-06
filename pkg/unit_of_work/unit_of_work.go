@@ -2,7 +2,7 @@ package tx
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/soguazu/core_business/internals/core/ports"
+	"core_business/internals/core/ports"
 	"gorm.io/gorm"
 )
 

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/soguazu/core_business/cmd/server"
-	_ "github.com/soguazu/core_business/docs"
-	"github.com/soguazu/core_business/pkg/database"
+	"core_business/cmd/server"
+	_ "core_business/docs"
+	"core_business/pkg/database"
 	"log"
 )
 

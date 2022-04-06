@@ -3,11 +3,11 @@ package server
 import (
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"github.com/soguazu/core_business/internals/core/services"
-	"github.com/soguazu/core_business/internals/handlers"
-	"github.com/soguazu/core_business/internals/repositories"
-	"github.com/soguazu/core_business/pkg/config"
-	"github.com/soguazu/core_business/pkg/logger"
+	"core_business/internals/core/services"
+	"core_business/internals/handlers"
+	"core_business/internals/repositories"
+	"core_business/pkg/config"
+	"core_business/pkg/logger"
 )
 
 // Injection inject all dependencies
@@ -38,6 +38,10 @@ func Injection() {
 		businessPartnerRepository = repositories.NewBusinessPartnerRepository(DBConnection)
 		businessPartnerService    = services.NewBusinessPartnerService(businessPartnerRepository, logging)
 		businessPartnerHandler    = handlers.NewBusinessPartnerHandler(businessPartnerService, logging, "Business partner")
+
+		companyProfileRepository = repositories.NewCompanyProfileRepository(DBConnection)
+		companyProfileService    = services.NewCompanyProfileService(companyProfileRepository, logging)
+		companyProfileHandler    = handlers.NewCompanyProfileHandler(companyProfileService, logging, "Company profile")
 	)
 
 	v1 := ginRoutes.GROUP("v1")
@@ -71,6 +75,14 @@ func Injection() {
 	businessPartner.POST("/", businessPartnerHandler.CreateBusinessPartner)
 	businessPartner.DELETE("/:id", businessPartnerHandler.DeleteBusinessPartner)
 	businessPartner.PATCH("/:id", businessPartnerHandler.UpdateBusinessPartner)
+
+	companyProfile := v1.Group("/company_profile")
+	companyProfile.GET("/:id", companyProfileHandler.GetCompanyProfileByID)
+	companyProfile.GET("/", companyProfileHandler.GetAllCompanyProfile)
+	companyProfile.GET("/company/:id", companyProfileHandler.GetCompanyProfileByCompanyID)
+	companyProfile.POST("/", companyProfileHandler.CreateCompanyProfile)
+	companyProfile.DELETE("/:id", companyProfileHandler.DeleteCompanyProfile)
+	companyProfile.PATCH("/:id", companyProfileHandler.UpdateCompanyProfile)
 
 	err := ginRoutes.SERVE()
 

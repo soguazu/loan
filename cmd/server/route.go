@@ -3,8 +3,8 @@ package server
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/soguazu/core_business/internals/core/ports"
-	"github.com/soguazu/core_business/pkg/config"
+	"core_business/internals/core/ports"
+	"core_business/pkg/config"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"

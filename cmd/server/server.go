@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/soguazu/core_business/internals/core/ports"
-	"github.com/soguazu/core_business/pkg/config"
+	"core_business/internals/core/ports"
+	"core_business/pkg/config"
 	"gorm.io/gorm"
 	"log"
 )

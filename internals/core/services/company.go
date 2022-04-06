@@ -3,10 +3,10 @@ package services
 import (
 	"errors"
 	log "github.com/sirupsen/logrus"
-	"github.com/soguazu/core_business/internals/common"
-	"github.com/soguazu/core_business/internals/core/domain"
-	"github.com/soguazu/core_business/internals/core/ports"
-	"github.com/soguazu/core_business/pkg/utils"
+	"core_business/internals/common"
+	"core_business/internals/core/domain"
+	"core_business/internals/core/ports"
+	"core_business/pkg/utils"
 )
 
 type companyService struct {

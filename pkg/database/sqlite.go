@@ -2,8 +2,8 @@ package database
 
 import (
 	"fmt"
-	"github.com/soguazu/core_business/internals/core/domain"
-	"github.com/soguazu/core_business/internals/core/ports"
+	"core_business/internals/core/domain"
+	"core_business/internals/core/ports"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -36,5 +36,6 @@ func (d *sqliteDatastore) MigrateAll(db *gorm.DB) error {
 		&domain.Address{},
 		&domain.BusinessHead{},
 		&domain.BusinessPartner{},
+		&domain.CompanyProfile{},
 	)
 }

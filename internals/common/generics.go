@@ -1,6 +1,6 @@
 package common
 
-import "github.com/soguazu/core_business/pkg/utils"
+import "core_business/pkg/utils"
 
 // GetByIDRequest DTO to get address by id
 type GetByIDRequest struct {

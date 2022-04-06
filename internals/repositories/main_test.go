@@ -2,8 +2,10 @@ package repositories
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/soguazu/core_business/internals/core/ports"
-	"github.com/soguazu/core_business/pkg/database"
+	"core_business/internals/core/domain"
+	"core_business/internals/core/ports"
+	"core_business/pkg/database"
+	"core_business/pkg/utils"
 	"gorm.io/gorm"
 	"os"
 	"path/filepath"
@@ -16,6 +18,8 @@ var (
 	AddressRepository         ports.IAddressRepository
 	BusinessHeadRepository    ports.IBusinessHeadRepository
 	BusinessPartnerRepository ports.IBusinessPartnerRepository
+	CompanyProfileRepository  ports.ICompanyProfileRepository
+	Company                   *domain.Company
 )
 
 func TestMain(m *testing.M) {
@@ -37,6 +41,16 @@ func instantiateRepos() {
 	CompanyRepository = &companyRepository{
 		db: DBConnection,
 	}
+	Company = &domain.Company{
+		Owner:         (&utils.Faker{}).RandomUUID(),
+		Name:          (&utils.Faker{}).RandomName(),
+		Website:       (&utils.Faker{}).RandomWebsite(),
+		Type:          (&utils.Faker{}).RandomType(),
+		FundingSource: (&utils.Faker{}).RandomFundSource(),
+		NoOfEmployee:  (&utils.Faker{}).RandomNoOfEmployee(),
+	}
+
+	CompanyRepository.Persist(Company)
 
 	AddressRepository = &addressRepository{
 		db: DBConnection,
@@ -47,6 +61,10 @@ func instantiateRepos() {
 	}
 
 	BusinessPartnerRepository = &businessPartnerRepository{
+		db: DBConnection,
+	}
+
+	CompanyProfileRepository = &companyProfileRepository{
 		db: DBConnection,
 	}
 }

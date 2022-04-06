@@ -2,8 +2,8 @@ package database
 
 import (
 	"fmt"
-	"github.com/soguazu/core_business/internals/core/domain"
-	"github.com/soguazu/core_business/internals/core/ports"
+	"core_business/internals/core/domain"
+	"core_business/internals/core/ports"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -37,5 +37,6 @@ func (d *datastore) MigrateAll(db *gorm.DB) error {
 		&domain.Address{},
 		&domain.BusinessHead{},
 		&domain.BusinessPartner{},
+		&domain.CompanyProfile{},
 	)
 }
