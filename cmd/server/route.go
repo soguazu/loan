@@ -1,10 +1,10 @@
 package server
 
 import (
-	"fmt"
-	"github.com/gin-gonic/gin"
 	"core_business/internals/core/ports"
 	"core_business/pkg/config"
+	"fmt"
+	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"

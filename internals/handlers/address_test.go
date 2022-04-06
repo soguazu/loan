@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"bytes"
-	"encoding/json"
-	"fmt"
 	"core_business/internals/common"
 	"core_business/internals/core/services"
 	"core_business/internals/repositories"
 	"core_business/pkg/utils"
+	"encoding/json"
+	"fmt"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"

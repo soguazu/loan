@@ -1,12 +1,12 @@
 package services
 
 import (
-	"errors"
-	log "github.com/sirupsen/logrus"
 	"core_business/internals/common"
 	"core_business/internals/core/domain"
 	"core_business/internals/core/ports"
 	"core_business/pkg/utils"
+	"errors"
+	log "github.com/sirupsen/logrus"
 )
 
 type companyService struct {

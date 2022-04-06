@@ -1,11 +1,11 @@
 package logger
 
 import (
+	"core_business/internals/core/ports"
+	"core_business/pkg/config"
 	"fmt"
 	"github.com/olivere/elastic/v7"
 	log "github.com/sirupsen/logrus"
-	"core_business/internals/core/ports"
-	"core_business/pkg/config"
 	"gopkg.in/sohlich/elogrus.v7"
 	"io"
 	"os"

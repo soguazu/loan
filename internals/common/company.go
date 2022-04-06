@@ -1,9 +1,9 @@
 package common
 
 import (
-	uuid "github.com/satori/go.uuid"
 	"core_business/internals/core/domain"
 	"core_business/pkg/utils"
+	uuid "github.com/satori/go.uuid"
 )
 
 // CreateCompanyRequest DTO to create company

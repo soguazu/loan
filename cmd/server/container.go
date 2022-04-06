@@ -1,13 +1,13 @@
 package server
 
 import (
-	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"core_business/internals/core/services"
 	"core_business/internals/handlers"
 	"core_business/internals/repositories"
 	"core_business/pkg/config"
 	"core_business/pkg/logger"
+	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 // Injection inject all dependencies

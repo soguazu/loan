@@ -1,10 +1,10 @@
 package repositories
 
 import (
-	uuid "github.com/satori/go.uuid"
 	"core_business/internals/common"
 	"core_business/internals/core/domain"
 	"core_business/pkg/utils"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"

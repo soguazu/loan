@@ -1,9 +1,9 @@
 package database
 
 import (
-	"fmt"
 	"core_business/internals/core/domain"
 	"core_business/internals/core/ports"
+	"fmt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
