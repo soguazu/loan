@@ -143,11 +143,11 @@ func (ch *companyProfileHandler) GetAllCompanyProfile(c *gin.Context) {
 // CreateCompanyProfile godoc
 // @Summary      Create Business Head
 // @Description  creates a business head
-// @Tags         business_head
+// @Tags         company_profile
 // @Accept       json
 // @Produce      json
-// @Param company body common.CreateBusinessHeadRequest true "Add company"
-// @Success      200  {object}  common.CreateDataResponse
+// @Param company body common.CreateCompanyProfileRequest true "Add company"
+// @Success      200  {object}  common.CompanyProfileDataResponse
 // @Failure      400  {object}  common.Error
 // @Failure      500  {object}  common.Error
 // @Router       /company_profile [post]
@@ -169,6 +169,7 @@ func (ch *companyProfileHandler) CreateCompanyProfile(c *gin.Context) {
 		StatusReportURL:    body.StatusReportURL,
 		IncorporationYear:  body.IncorporationYear,
 		IncorporationState: body.IncorporationState,
+		YearsInOperation:   body.YearsInOperation,
 	}
 	err := ch.CompanyProfileService.CreateCompanyProfile(companyProfile)
 

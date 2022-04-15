@@ -22,10 +22,7 @@ func Injection() {
 	}
 
 	var (
-		ginRoutes         = NewGinRouter(gin.Default())
-		companyRepository = repositories.NewCompanyRepository(DBConnection)
-		companyService    = services.NewCompanyService(companyRepository, logging)
-		companyHandler    = handlers.NewCompanyHandler(companyService, logging, "Company")
+		ginRoutes = NewGinRouter(gin.Default())
 
 		addressRepository = repositories.NewAddressRepository(DBConnection)
 		addressService    = services.NewAddressService(addressRepository, logging)
@@ -42,6 +39,14 @@ func Injection() {
 		companyProfileRepository = repositories.NewCompanyProfileRepository(DBConnection)
 		companyProfileService    = services.NewCompanyProfileService(companyProfileRepository, logging)
 		companyProfileHandler    = handlers.NewCompanyProfileHandler(companyProfileService, logging, "Company profile")
+
+		walletRepository = repositories.NewWalletRepository(DBConnection)
+		walletService    = services.NewWalletService(walletRepository, logging)
+		walletHandler    = handlers.NewWalletHandler(walletService, logging, "Wallet")
+
+		companyRepository = repositories.NewCompanyRepository(DBConnection)
+		companyService    = services.NewCompanyService(companyRepository, companyProfileRepository, walletRepository, logging)
+		companyHandler    = handlers.NewCompanyHandler(companyService, logging, "Company")
 	)
 
 	v1 := ginRoutes.GROUP("v1")
@@ -51,6 +56,7 @@ func Injection() {
 	company.POST("/", companyHandler.CreateCompany)
 	company.DELETE("/:id", companyHandler.DeleteCompany)
 	company.PATCH("/:id", companyHandler.UpdateCompany)
+	company.PATCH("/:id/under_writing", companyHandler.UnderWriting)
 
 	address := v1.Group("/address")
 	address.GET("/:id", addressHandler.GetAddressByID)
@@ -83,6 +89,12 @@ func Injection() {
 	companyProfile.POST("/", companyProfileHandler.CreateCompanyProfile)
 	companyProfile.DELETE("/:id", companyProfileHandler.DeleteCompanyProfile)
 	companyProfile.PATCH("/:id", companyProfileHandler.UpdateCompanyProfile)
+
+	wallet := v1.Group("/wallet")
+	wallet.GET("/:id", walletHandler.GetWalletByID)
+	wallet.POST("/webhook", walletHandler.CreateWallet)
+	wallet.DELETE("/:id", walletHandler.DeleteWallet)
+	wallet.PATCH("/:id", walletHandler.UpdateWallet)
 
 	err := ginRoutes.SERVE()
 

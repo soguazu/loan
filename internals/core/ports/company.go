@@ -26,6 +26,7 @@ type ICompanyService interface {
 	CreateCompany(company *domain.Company) error
 	UpdateCompany(params common.GetByIDRequest, company common.UpdateCompanyRequest) (*domain.Company, error)
 	DeleteCompany(id string) error
+	UnderWriting(id string) (*common.UnderWritingResponse, error)
 }
 
 // ICompanyHandler defines the interface for company handler
@@ -35,4 +36,5 @@ type ICompanyHandler interface {
 	CreateCompany(c *gin.Context)
 	DeleteCompany(c *gin.Context)
 	UpdateCompany(c *gin.Context)
+	UnderWriting(c *gin.Context)
 }

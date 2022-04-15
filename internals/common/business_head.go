@@ -4,7 +4,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// UpdateBusinessHeadRequest DTO to update address
+// UpdateBusinessHeadRequest DTO to update business head
 type UpdateBusinessHeadRequest struct {
 	JobTitle               *string `json:"job_title,omitempty"`
 	Phone                  *string `json:"phone,omitempty"`

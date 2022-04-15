@@ -18,21 +18,21 @@ type GetBusinessPartnerResponse struct {
 	Phone   string    `json:"phone"`
 }
 
-// BusinessPartnerDataResponse returns business head response
+// BusinessPartnerDataResponse returns business partner response
 type BusinessPartnerDataResponse struct {
 	Success bool                       `json:"success"`
 	Message string                     `json:"message"`
 	Data    GetBusinessPartnerResponse `json:"data"`
 }
 
-// FilterBusinessPartnerDataResponse returns business heads responses
+// FilterBusinessPartnerDataResponse returns business partner responses
 type FilterBusinessPartnerDataResponse struct {
 	Success bool                         `json:"success"`
 	Message string                       `json:"message"`
 	Data    []GetBusinessPartnerResponse `json:"data"`
 }
 
-// CreateBusinessPartnerRequest DTO to create business head
+// CreateBusinessPartnerRequest DTO to create business partner
 type CreateBusinessPartnerRequest struct {
 	Company uuid.UUID `json:"company" binding:"required"`
 	Name    string    `json:"name" binding:"required"`

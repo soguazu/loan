@@ -8,6 +8,7 @@ import (
 
 // CreateCompanyRequest DTO to create company
 type CreateCompanyRequest struct {
+	Company       uuid.UUID `json:"company"`
 	Owner         uuid.UUID `json:"owner" binding:"required"`
 	Name          string    `json:"name" binding:"required"`
 	Website       string    `json:"website"`
@@ -85,6 +86,77 @@ type Message struct {
 type PassedCompanyTable struct {
 	Company  CreateCompanyRequest
 	TestName string
+}
+
+// CashBalanceRequest struct
+type CashBalanceRequest struct {
+	From      string `json:"from"`
+	To        string `json:"to"`
+	AccountID string `json:"account_id"`
+	Page      int32  `json:"page"`
+	Limit     int32  `json:"limit"`
+}
+
+// CashBalanceResponse struct
+type CashBalanceResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Data    struct {
+		Data []struct {
+			Transactions []struct {
+				BankBalance float64 `json:"bank_balance"`
+			} `json:"transactions"`
+		} `json:"data"`
+	} `json:"data"`
+}
+
+// KYCCheckRequest struct
+type KYCCheckRequest struct {
+	RCNumber    string `json:"rc_number"`
+	CompanyName string `json:"company_name"`
+}
+
+// KYCCheckResponse struct
+type KYCCheckResponse struct {
+	Data KYCCheckPayload `json:"data"`
+}
+
+type KYCCheckPayload struct {
+	Details KYCCheckNestedPayload `json:"details"`
+}
+
+type KYCCheckNestedPayload struct {
+	RCNumber    string `json:"rc_number"`
+	CompanyName string `json:"company_name"`
+	Address     string `json:"address"`
+	Date_Reg    string `json:"date_reg"`
+}
+
+// TransactionsCheckRequest struct
+type TransactionsCheckRequest struct {
+	From       string `json:"from"`
+	To         string `json:"to"`
+	CustomerID string `json:"customer_id"`
+	Page       int32  `json:"page"`
+	Limit      int32  `json:"limit"`
+}
+
+// TransactionCheckResponse struct
+type TransactionCheckResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Data    struct {
+		Transaction []struct {
+			Credit float64 `json:"credit"`
+			Debit  float64 `json:"debit"`
+		} `json:"transaction"`
+	} `json:"data"`
+}
+
+// UnderWritingResponse struct
+type UnderWritingResponse struct {
+	CreditLimit float64 `json:"credit_limit"`
+	TotalPoint  int32   `json:"total_point"`
 }
 
 // PassedTT random data for unit testing

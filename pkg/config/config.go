@@ -11,6 +11,8 @@ type Config struct {
 	RedisURL    string  `env:"REDIS_URL"`
 	Env         string  `env:"ENV"`
 	ElasticURL  string  `env:"ELASTIC_URL"`
+	OkraBaseURL string  `env:"OKRA_BASE_URL"`
+	OkraSecret  string  `env:"OKRA_SECRET"`
 }
 
 // GetEnv returns the current environment

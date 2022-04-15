@@ -14,6 +14,8 @@ const (
 	DELETED = "deleted successfully"
 	// UPDATED creates types of response messages for patch endpoint
 	UPDATED = "updated successfully"
+	// UNDERWRITING creates types of response messages for patch endpoint
+	UNDERWRITING = "underwriting passed successfully"
 )
 
 // GetResponseMessage generates dynamic messages

@@ -45,14 +45,14 @@ type CreateDataResponse struct {
 	Data    CreateAddressResponse `json:"data"`
 }
 
-// FilterAddressDataResponse returns business heads responses
+// FilterAddressDataResponse returns address responses
 type FilterAddressDataResponse struct {
 	Success bool                    `json:"success"`
 	Message string                  `json:"message"`
 	Data    []CreateAddressResponse `json:"data"`
 }
 
-// CreateAddressRequest DTO to create company
+// CreateAddressRequest DTO to create address
 type CreateAddressRequest struct {
 	Company            uuid.UUID `json:"company" binding:"required"`
 	Address            string    `json:"address" binding:"required"`

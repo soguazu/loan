@@ -37,5 +37,6 @@ func (d *sqliteDatastore) MigrateAll(db *gorm.DB) error {
 		&domain.BusinessHead{},
 		&domain.BusinessPartner{},
 		&domain.CompanyProfile{},
+		&domain.Wallet{},
 	)
 }

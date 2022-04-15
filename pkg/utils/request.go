@@ -71,15 +71,18 @@ func (r *Client) GET(method, link string, params map[string]string) ([]byte, err
 // CHANGE method for carrying out get request
 func (r *Client) CHANGE(method, url string, payload []byte) ([]byte, error) {
 	endpoint := fmt.Sprintf("%v/%v", r.BaseURL, url)
+
 	req, err := http.NewRequest(method, endpoint, bytes.NewBuffer(payload))
+
 	if err != nil {
 		return nil, err
 	}
-	if len(r.Header) != 0 {
+
+	if len(r.Header) > 0 {
 		r.SetHeader(req)
 	}
 
-	client := http.Client{Timeout: 2 * time.Second}
+	client := http.Client{Timeout: time.Duration(10) * time.Second}
 
 	response, err := client.Do(req)
 
@@ -105,8 +108,8 @@ func (r *Client) CHANGE(method, url string, payload []byte) ([]byte, error) {
 
 // SetHeader method for setting header
 func (r *Client) SetHeader(request *http.Request) {
-	for _, header := range r.Header {
-		request.Header.Set(header, r.Header[header])
+	for key, header := range r.Header {
+		request.Header.Add(key, header)
 	}
 	return
 }

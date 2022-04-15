@@ -117,6 +117,7 @@ func (ch *companyHandler) CreateCompany(c *gin.Context) {
 	}
 
 	company := &domain.Company{
+		ID:            body.Company,
 		Owner:         body.Owner,
 		Name:          body.Name,
 		Website:       body.Website,
@@ -155,6 +156,11 @@ func (ch *companyHandler) DeleteCompany(c *gin.Context) {
 	}
 	err := ch.CompanyService.DeleteCompany(query.ID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ch.logger.Error(err)
+			c.JSON(http.StatusNotFound, result.ReturnErrorResult(err.Error()))
+			return
+		}
 		ch.logger.Error(err)
 		c.JSON(http.StatusInternalServerError, result.ReturnErrorResult(err.Error()))
 		return
@@ -193,9 +199,48 @@ func (ch *companyHandler) UpdateCompany(c *gin.Context) {
 
 	company, err := ch.CompanyService.UpdateCompany(params, body)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ch.logger.Error(err)
+			c.JSON(http.StatusNotFound, result.ReturnErrorResult(err.Error()))
+			return
+		}
 		ch.logger.Error(err)
 		c.JSON(http.StatusInternalServerError, result.ReturnErrorResult(err.Error()))
 		return
 	}
 	c.JSON(http.StatusOK, result.ReturnSuccessResult(company, message.GetResponseMessage(ch.handlerName, types.UPDATED)))
+}
+
+// UnderWriting godoc
+// @Summary      valid a company's right to be given loan
+// @Description  valid a company's right to be given loan
+// @Tags         company
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Company ID"
+// @Failure      400  {object}  common.Error
+// @Failure      404  {object}  common.Error
+// @Failure      500  {object}  common.Error
+// @Router       /company/{id}/under_writing [patch]
+func (ch *companyHandler) UnderWriting(c *gin.Context) {
+	var query common.GetCompanyByIDRequest
+	if err := c.ShouldBindUri(&query); err != nil {
+		ch.logger.Error(err)
+		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
+		return
+	}
+
+	response, err := ch.CompanyService.UnderWriting(query.ID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ch.logger.Error(err)
+			c.JSON(http.StatusNotFound, result.ReturnErrorResult(err.Error()))
+			return
+		}
+		ch.logger.Error(err)
+		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, result.ReturnSuccessResult(response, message.GetResponseMessage(ch.handlerName, types.UNDERWRITING)))
 }

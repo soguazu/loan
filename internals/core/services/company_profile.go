@@ -107,6 +107,18 @@ func (cp *companyProfileService) UpdateCompanyProfile(id string, body common.Upd
 		companyProfile.StatusReportURL = *body.StatusReportURL
 	}
 
+	if body.YearsInOperation != nil {
+		companyProfile.YearsInOperation = *body.YearsInOperation
+	}
+
+	if body.IncorporationState != nil {
+		companyProfile.IncorporationState = *body.IncorporationState
+	}
+
+	if body.IncorporationYear != nil {
+		companyProfile.IncorporationYear = *body.IncorporationYear
+	}
+
 	err = cp.CompanyProfileRepository.Persist(companyProfile)
 
 	if err != nil {

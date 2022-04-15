@@ -26,7 +26,8 @@ var (
 	DBConnection      = db.ConnectDB(filepath.Join("..", "..", "evea.db"))
 	logging           = logger.NewLogger(log.New()).MakeLogger(filepath.Join("..", "..", "logs", "info"), true)
 	companyRepository = repositories.NewCompanyRepository(DBConnection)
-	companyService    = services.NewCompanyService(companyRepository, logging)
+	walletRepository  = repositories.NewWalletRepository(DBConnection)
+	companyService    = services.NewCompanyService(companyRepository, companyProfileRepository, walletRepository, logging)
 	handler           = NewCompanyHandler(companyService, logging, "Company")
 )
 
