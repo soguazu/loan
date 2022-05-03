@@ -59,6 +59,7 @@ func createCompanyProfile(t *testing.T) *common.CompanyProfileDataResponse {
 		CACCertificateURL:  (&utils.Faker{}).RandomString(15),
 		MermatURL:          (&utils.Faker{}).RandomString(15),
 		StatusReportURL:    (&utils.Faker{}).RandomString(15),
+		YearsInOperation:   23,
 	}
 
 	jsonValue, _ := json.Marshal(entity)

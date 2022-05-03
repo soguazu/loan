@@ -4,15 +4,28 @@ import (
 	"core_business/internals/common"
 	"core_business/internals/core/domain"
 	"core_business/pkg/utils"
+	"fmt"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"testing"
 	"time"
 )
 
 func createRandomCompany(t *testing.T) *domain.Company {
+	ID := primitive.NewObjectID().Hex()
+	isValid := primitive.IsValidObjectID(ID)
+
+	if isValid == false {
+		fmt.Println("Invalid owner id", isValid)
+		return nil
+	}
+
+	fmt.Println(ID, "the generated id", ID, isValid)
+
 	args := &domain.Company{
-		Owner:         (&utils.Faker{}).RandomUUID(),
+		ID:            (&utils.Faker{}).RandomUUID(),
+		Owner:         ID,
 		Name:          (&utils.Faker{}).RandomName(),
 		Website:       (&utils.Faker{}).RandomWebsite(),
 		Type:          (&utils.Faker{}).RandomType(),
@@ -34,6 +47,7 @@ func TestPassedCreateCompany(t *testing.T) {
 		table := tc.Company
 		t.Run(tc.TestName, func(t *testing.T) {
 			c := &domain.Company{
+				ID:            table.Company,
 				Owner:         table.Owner,
 				Name:          table.Name,
 				Type:          table.Type,

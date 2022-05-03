@@ -7,8 +7,10 @@ import (
 	"core_business/internals/core/ports"
 	"core_business/pkg/utils"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gorm.io/gorm"
 	"net/http"
 )
@@ -113,6 +115,14 @@ func (ch *companyHandler) CreateCompany(c *gin.Context) {
 	if err := c.ShouldBindJSON(&body); err != nil {
 		ch.logger.Error(err, "###")
 		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
+		return
+	}
+
+	isValid := primitive.IsValidObjectID(body.Owner)
+
+	if isValid == false {
+		ch.logger.Error("Invalid OjectID for owner's field ", body.Owner)
+		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(fmt.Sprintf("Invalid OjectID for owner's field - %v", body.Owner)))
 		return
 	}
 
@@ -243,4 +253,99 @@ func (ch *companyHandler) UnderWriting(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, result.ReturnSuccessResult(response, message.GetResponseMessage(ch.handlerName, types.UNDERWRITING)))
+}
+
+// RequestCreditLimitIncrease godoc
+// @Summary      valid a company's right to be given loan
+// @Description  valid a company's right to be given loan
+// @Tags         company
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Company ID"
+// @Param creditLimit body common.CreateCreditLimitIncreaseRequest true "Request credit limit increase"
+// @Success      200  {object}  common.GetCreditLimitIncrease
+// @Failure      400  {object}  common.Error
+// @Failure      404  {object}  common.Error
+// @Failure      500  {object}  common.Error
+// @Router       /company/{id}/request_credit_limit_upgrade [patch]
+func (ch *companyHandler) RequestCreditLimitIncrease(c *gin.Context) {
+	var query common.GetCompanyByIDRequest
+	var body common.CreateCreditLimitIncreaseRequest
+
+	if err := c.ShouldBindUri(&query); err != nil {
+		ch.logger.Error(err)
+		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
+		return
+	}
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		ch.logger.Error(err)
+		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
+		return
+	}
+
+	creditLimitIncrease := &domain.CreditIncrease{
+		DesiredCreditLimit: body.DesiredCreditLimit,
+		Reason:             body.Reason,
+	}
+
+	err := ch.CompanyService.RequestCreditLimitIncrease(query.ID, creditLimitIncrease)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ch.logger.Error(err)
+			c.JSON(http.StatusNotFound, result.ReturnErrorResult(err.Error()))
+			return
+		}
+		ch.logger.Error(err)
+		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, result.ReturnSuccessResult(creditLimitIncrease, message.GetResponseMessage(ch.handlerName, types.CREATED)))
+}
+
+// UpdateRequestCreditLimitIncrease godoc
+// @Summary      valid a company's right to be given loan
+// @Description  valid a company's right to be given loan
+// @Tags         company
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Company ID"
+// @Param creditLimit body common.CreateCreditLimitIncreaseRequest true "Request credit limit increase"
+// @Success      200  {object}  common.GetCreditLimitIncrease
+// @Failure      400  {object}  common.Error
+// @Failure      404  {object}  common.Error
+// @Failure      500  {object}  common.Error
+// @Router       /company/{id}/update_credit_limit [patch]
+func (ch *companyHandler) UpdateRequestCreditLimitIncrease(c *gin.Context) {
+	var param common.GetByIDRequest
+	var body common.UpdateCreditLimitIncreaseRequest
+
+	if err := c.ShouldBindUri(&param); err != nil {
+		ch.logger.Error(err)
+		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
+		return
+	}
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		ch.logger.Error(err)
+		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
+		return
+	}
+
+	err := ch.CompanyService.UpdateRequestCreditLimitIncrease(param, body)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ch.logger.Error(err)
+			c.JSON(http.StatusNotFound, result.ReturnErrorResult(err.Error()))
+			return
+		}
+		ch.logger.Error(err)
+		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, result.ReturnSuccessMessage(message.GetResponseMessage(ch.handlerName, types.CREDITLIMIT)))
 }

@@ -42,7 +42,7 @@ func instantiateRepos() {
 		db: DBConnection,
 	}
 	Company = &domain.Company{
-		Owner:         (&utils.Faker{}).RandomUUID(),
+		Owner:         (&utils.Faker{}).RandomObjectID(),
 		Name:          (&utils.Faker{}).RandomName(),
 		Website:       (&utils.Faker{}).RandomWebsite(),
 		Type:          (&utils.Faker{}).RandomType(),

@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	uuid "github.com/satori/go.uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"math/rand"
 	"strings"
 	"time"
@@ -20,6 +21,11 @@ func init() {
 // RandomUUID generates random uuid v4
 func (f *Faker) RandomUUID() uuid.UUID {
 	return uuid.NewV4()
+}
+
+// RandomObjectID generates random uuid v4
+func (f *Faker) RandomObjectID() string {
+	return primitive.NewObjectID().Hex()
 }
 
 // RandomInt generates random integers

@@ -22,13 +22,14 @@ import (
 )
 
 var (
-	db                = datastore.NewSqliteDatabase()
-	DBConnection      = db.ConnectDB(filepath.Join("..", "..", "evea.db"))
-	logging           = logger.NewLogger(log.New()).MakeLogger(filepath.Join("..", "..", "logs", "info"), true)
-	companyRepository = repositories.NewCompanyRepository(DBConnection)
-	walletRepository  = repositories.NewWalletRepository(DBConnection)
-	companyService    = services.NewCompanyService(companyRepository, companyProfileRepository, walletRepository, logging)
-	handler           = NewCompanyHandler(companyService, logging, "Company")
+	db                  = datastore.NewSqliteDatabase()
+	DBConnection        = db.ConnectDB(filepath.Join("..", "..", "evea.db"))
+	logging             = logger.NewLogger(log.New()).MakeLogger(filepath.Join("..", "..", "logs", "info"), true)
+	companyRepository   = repositories.NewCompanyRepository(DBConnection)
+	walletRepository    = repositories.NewWalletRepository(DBConnection)
+	creditLimitIncrease = repositories.NewCreditLimitRequestRepository(DBConnection)
+	companyService      = services.NewCompanyService(companyRepository, companyProfileRepository, walletRepository, creditLimitIncrease, logging)
+	handler             = NewCompanyHandler(companyService, logging, "Company")
 )
 
 func SetupRouter() *gin.Engine {
@@ -62,7 +63,8 @@ func createCompany(t *testing.T) *common.CreateCompanyResponse {
 	r := SetupRouter()
 	r.POST("/v1/company", handler.CreateCompany)
 	entity := common.CreateCompanyRequest{
-		Owner:         (&utils.Faker{}).RandomUUID(),
+		Company:       (&utils.Faker{}).RandomUUID(),
+		Owner:         (&utils.Faker{}).RandomObjectID(),
 		Name:          (&utils.Faker{}).RandomName(),
 		Website:       (&utils.Faker{}).RandomWebsite(),
 		Type:          (&utils.Faker{}).RandomType(),

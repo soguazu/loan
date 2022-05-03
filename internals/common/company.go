@@ -9,7 +9,7 @@ import (
 // CreateCompanyRequest DTO to create company
 type CreateCompanyRequest struct {
 	Company       uuid.UUID `json:"company"`
-	Owner         uuid.UUID `json:"owner" binding:"required"`
+	Owner         string    `json:"owner" binding:"required"`
 	Name          string    `json:"name" binding:"required"`
 	Website       string    `json:"website"`
 	Type          string    `json:"type" binding:"required"`
@@ -20,7 +20,7 @@ type CreateCompanyRequest struct {
 // GetCompanyResponse DTO
 type GetCompanyResponse struct {
 	ID            uuid.UUID `json:"id" binding:"required"`
-	Owner         uuid.UUID `json:"owner" binding:"required"`
+	Owner         string    `json:"owner" binding:"required"`
 	Name          string    `json:"name" binding:"required"`
 	Website       string    `json:"website"`
 	Type          string    `json:"type"`
@@ -41,9 +41,9 @@ type GetAllCompanyRequest struct {
 
 // GetCompany DTO to filter company
 type GetCompany struct {
-	Owner uuid.UUID `json:"owner,omitempty" form:"owner"`
-	Name  string    `json:"name,omitempty" form:"name"`
-	Type  string    `json:"type,omitempty" form:"type"`
+	Owner string `json:"owner,omitempty" form:"owner"`
+	Name  string `json:"name,omitempty" form:"name"`
+	Type  string `json:"type,omitempty" form:"type"`
 }
 
 // UpdateCompanyRequest DTO to update company
@@ -164,7 +164,8 @@ var PassedTT = []PassedCompanyTable{
 	{
 		TestName: "All columns are complete",
 		Company: CreateCompanyRequest{
-			Owner:         (&utils.Faker{}).RandomUUID(),
+			Company:       (&utils.Faker{}).RandomUUID(),
+			Owner:         (&utils.Faker{}).RandomObjectID(),
 			Name:          (&utils.Faker{}).RandomName(),
 			Website:       (&utils.Faker{}).RandomWebsite(),
 			Type:          (&utils.Faker{}).RandomType(),
@@ -175,7 +176,8 @@ var PassedTT = []PassedCompanyTable{
 	{
 		TestName: "Except FundingSource and NoEmployee",
 		Company: CreateCompanyRequest{
-			Owner:   (&utils.Faker{}).RandomUUID(),
+			Company: (&utils.Faker{}).RandomUUID(),
+			Owner:   (&utils.Faker{}).RandomObjectID(),
 			Name:    (&utils.Faker{}).RandomName(),
 			Website: (&utils.Faker{}).RandomWebsite(),
 			Type:    (&utils.Faker{}).RandomType(),
@@ -184,7 +186,8 @@ var PassedTT = []PassedCompanyTable{
 	{
 		TestName: "With no NoOfEmployee",
 		Company: CreateCompanyRequest{
-			Owner:         (&utils.Faker{}).RandomUUID(),
+			Company:       (&utils.Faker{}).RandomUUID(),
+			Owner:         (&utils.Faker{}).RandomObjectID(),
 			Name:          (&utils.Faker{}).RandomName(),
 			Website:       (&utils.Faker{}).RandomWebsite(),
 			Type:          (&utils.Faker{}).RandomType(),
@@ -213,7 +216,7 @@ var FailedTT = []PassedCompanyTable{
 	{
 		TestName: "Type wasn't passed",
 		Company: CreateCompanyRequest{
-			Owner:         (&utils.Faker{}).RandomUUID(),
+			Owner:         (&utils.Faker{}).RandomObjectID(),
 			Name:          (&utils.Faker{}).RandomName(),
 			Website:       (&utils.Faker{}).RandomWebsite(),
 			FundingSource: (&utils.Faker{}).RandomFundSource(),
@@ -223,10 +226,36 @@ var FailedTT = []PassedCompanyTable{
 	{
 		TestName: "NoOfEmployee wasn't passed",
 		Company: CreateCompanyRequest{
-			Owner:         (&utils.Faker{}).RandomUUID(),
+			Owner:         (&utils.Faker{}).RandomObjectID(),
 			Name:          (&utils.Faker{}).RandomName(),
 			Website:       (&utils.Faker{}).RandomWebsite(),
 			FundingSource: (&utils.Faker{}).RandomFundSource(),
 		},
 	},
+}
+
+// CreateCreditLimitIncreaseRequest DTO
+type CreateCreditLimitIncreaseRequest struct {
+	DesiredCreditLimit int64  `json:"desired_credit_limit" gorm:"index;not null"`
+	Reason             string `json:"reason" gorm:"not null;index"`
+	Status             bool   `json:"status" gorm:"not null;index;default:false"`
+}
+
+// UpdateCreditLimitIncreaseRequest DTO
+type UpdateCreditLimitIncreaseRequest struct {
+	DesiredCreditLimit *int64  `json:"desired_credit_limit" gorm:"index;not null"`
+	Reason             *string `json:"reason" gorm:"not null;index"`
+	Status             *bool   `json:"status" gorm:"not null;index;default:false"`
+}
+
+// GetCreditLimitIncrease DTO
+type GetCreditLimitIncrease struct {
+	ID                 uuid.UUID `json:"id" gorm:"not null;index"`
+	Company            uuid.UUID `json:"company" gorm:"not null;index"`
+	Wallet             uuid.UUID `json:"wallet" gorm:"not null;index"`
+	Owner              uuid.UUID `json:"user" gorm:"not null;index"`
+	CreditLimit        int64     `json:"credit_limit" gorm:"index;not null"`
+	DesiredCreditLimit int64     `json:"desired_credit_limit" gorm:"index;not null"`
+	Reason             string    `json:"reason" gorm:"not null;index"`
+	Status             bool      `json:"status" gorm:"not null;index;default:false"`
 }

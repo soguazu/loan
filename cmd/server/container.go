@@ -44,8 +44,10 @@ func Injection() {
 		walletService    = services.NewWalletService(walletRepository, logging)
 		walletHandler    = handlers.NewWalletHandler(walletService, logging, "Wallet")
 
+		creditLimitRequestRepository = repositories.NewCreditLimitRequestRepository(DBConnection)
+
 		companyRepository = repositories.NewCompanyRepository(DBConnection)
-		companyService    = services.NewCompanyService(companyRepository, companyProfileRepository, walletRepository, logging)
+		companyService    = services.NewCompanyService(companyRepository, companyProfileRepository, walletRepository, creditLimitRequestRepository, logging)
 		companyHandler    = handlers.NewCompanyHandler(companyService, logging, "Company")
 	)
 
@@ -57,6 +59,8 @@ func Injection() {
 	company.DELETE("/:id", companyHandler.DeleteCompany)
 	company.PATCH("/:id", companyHandler.UpdateCompany)
 	company.PATCH("/:id/under_writing", companyHandler.UnderWriting)
+	company.PATCH("/:id/request_credit_limit_upgrade", companyHandler.RequestCreditLimitIncrease)
+	company.PATCH("/:id/update_credit_limit", companyHandler.UpdateRequestCreditLimitIncrease)
 
 	address := v1.Group("/address")
 	address.GET("/:id", addressHandler.GetAddressByID)

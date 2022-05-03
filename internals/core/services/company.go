@@ -19,22 +19,25 @@ import (
 var Request utils.Client
 
 type companyService struct {
-	CompanyRepository        ports.ICompanyRepository
-	CompanyProfileRepository ports.ICompanyProfileRepository
-	WalletRepository         ports.IWalletRepository
-	logger                   *log.Logger
+	CompanyRepository             ports.ICompanyRepository
+	CompanyProfileRepository      ports.ICompanyProfileRepository
+	WalletRepository              ports.IWalletRepository
+	CreditLimitIncreaseRepository ports.ICreditLimitRequestRepository
+	logger                        *log.Logger
 }
 
 // NewCompanyService function create a new instance for service
 func NewCompanyService(cr ports.ICompanyRepository,
 	cpr ports.ICompanyProfileRepository,
 	wr ports.IWalletRepository,
+	cli ports.ICreditLimitRequestRepository,
 	l *log.Logger) ports.ICompanyService {
 	return &companyService{
-		CompanyRepository:        cr,
-		CompanyProfileRepository: cpr,
-		WalletRepository:         wr,
-		logger:                   l,
+		CompanyRepository:             cr,
+		CompanyProfileRepository:      cpr,
+		WalletRepository:              wr,
+		CreditLimitIncreaseRepository: cli,
+		logger:                        l,
 	}
 }
 
@@ -405,4 +408,68 @@ func (c *companyService) CalculateEIRation(totalCredit, totalDebit float64) (int
 	}
 	return 5, nil
 
+}
+
+func (c *companyService) RequestCreditLimitIncrease(id string, body *domain.CreditIncrease) error {
+	wallet, err := c.WalletRepository.GetByID(id)
+	if err != nil {
+		c.logger.Error(err)
+		return err
+	}
+
+	company, err := c.CompanyRepository.GetByID(id)
+	if err != nil {
+		c.logger.Error(err)
+		return err
+	}
+
+	body.Wallet = wallet.ID
+	body.Company = company.ID
+	body.Owner = company.Owner
+
+	err = c.CreditLimitIncreaseRepository.Persist(body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *companyService) UpdateRequestCreditLimitIncrease(params common.GetByIDRequest, body common.UpdateCreditLimitIncreaseRequest) error {
+	ID, err := uuid.FromString(params.ID)
+
+	if err != nil {
+		return err
+	}
+
+	creditLimitRequest := domain.CreditIncrease{
+		Company: ID,
+	}
+
+	creditLimit, err := c.CreditLimitIncreaseRepository.GetBy(creditLimitRequest)
+
+	if err != nil {
+		c.logger.Error(err)
+		return err
+	}
+
+	if body.DesiredCreditLimit != nil {
+		creditLimit.DesiredCreditLimit = *body.DesiredCreditLimit
+	}
+
+	if body.Reason != nil {
+		creditLimit.Reason = *body.Reason
+	}
+
+	if body.Status != nil {
+		creditLimit.Status = *body.Status
+	}
+
+	err = c.CreditLimitIncreaseRepository.Persist(creditLimit)
+
+	if err != nil {
+		c.logger.Error(err)
+		return err
+	}
+	return nil
 }

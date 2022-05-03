@@ -16,6 +16,8 @@ const (
 	UPDATED = "updated successfully"
 	// UNDERWRITING creates types of response messages for patch endpoint
 	UNDERWRITING = "underwriting passed successfully"
+	// CREDITLIMIT creates types of response messages for patch endpoint
+	CREDITLIMIT = "credit limit updated successfully"
 )
 
 // GetResponseMessage generates dynamic messages

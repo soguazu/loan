@@ -27,6 +27,8 @@ type ICompanyService interface {
 	UpdateCompany(params common.GetByIDRequest, company common.UpdateCompanyRequest) (*domain.Company, error)
 	DeleteCompany(id string) error
 	UnderWriting(id string) (*common.UnderWritingResponse, error)
+	RequestCreditLimitIncrease(id string, body *domain.CreditIncrease) error
+	UpdateRequestCreditLimitIncrease(params common.GetByIDRequest, body common.UpdateCreditLimitIncreaseRequest) error
 }
 
 // ICompanyHandler defines the interface for company handler
@@ -37,4 +39,6 @@ type ICompanyHandler interface {
 	DeleteCompany(c *gin.Context)
 	UpdateCompany(c *gin.Context)
 	UnderWriting(c *gin.Context)
+	RequestCreditLimitIncrease(c *gin.Context)
+	UpdateRequestCreditLimitIncrease(c *gin.Context)
 }

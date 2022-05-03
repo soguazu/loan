@@ -7,8 +7,8 @@ import (
 
 // Company model
 type Company struct {
-	ID              uuid.UUID         `gorm:"type:uuid;primaryKey;autoIncrement:false"`
-	Owner           uuid.UUID         `json:"owner" gorm:"not null;index"`
+	ID              uuid.UUID         `gorm:"primary_key; unique;autoIncrement:false;type:uuid; column:id"`
+	Owner           string            `json:"owner" gorm:"not null;index"`
 	Name            string            `json:"name" gorm:"UNIQUE_INDEX:business;index;not null"`
 	Website         string            `json:"website" gorm:"index"`
 	Type            string            `json:"type" gorm:"index"`
