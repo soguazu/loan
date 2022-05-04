@@ -7,7 +7,7 @@ import (
 // BusinessHead model
 type BusinessHead struct {
 	Base
-	Company                uuid.UUID `json:"company,omitempty" gorm:"foreignKey:Company;references:ID"`
+	Company                uuid.UUID `json:"company,omitempty" gorm:"column:company"`
 	JobTitle               string    `json:"job_title" gorm:"index;not null"`
 	Phone                  string    `json:"phone" gorm:"not null"`
 	IdentificationType     string    `json:"identification_type" gorm:"not null"`

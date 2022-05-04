@@ -7,7 +7,7 @@ import (
 // Address model
 type Address struct {
 	Base
-	Company            uuid.UUID `json:"company,omitempty" gorm:"foreignKey:Company;references:ID"`
+	Company            uuid.UUID `json:"company,omitempty" gorm:"column:company"`
 	Address            string    `json:"address" gorm:"index;not null"`
 	ApartmentUnitFloor int32     `json:"apartment_unit_floor"`
 	City               string    `json:"city" gorm:"not null"`

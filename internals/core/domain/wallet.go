@@ -7,7 +7,7 @@ import (
 // Wallet model
 type Wallet struct {
 	Base
-	Company         uuid.UUID `json:"company" gorm:"not null;index"`
+	Company         uuid.UUID `json:"company" gorm:"not null;index;column:company"`
 	CreditLimit     int64     `json:"credit_limit" gorm:"index;not null"`
 	PreviousBalance int64     `json:"previous_balance" gorm:"default:0;not null"`
 	CurrentBalance  int64     `json:"current_balance" gorm:"default:0;not null"`

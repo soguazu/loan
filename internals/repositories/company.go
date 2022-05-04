@@ -21,7 +21,13 @@ func NewCompanyRepository(db *gorm.DB) ports.ICompanyRepository {
 
 func (c *companyRepository) GetByID(id string) (*domain.Company, error) {
 	var company domain.Company
-	if err := c.db.Where("id = ?", id).First(&company).Error; err != nil {
+	if err := c.db.Where("id = ?", id).
+		Preload("Address").
+		Preload("BusinessHead").
+		Preload("BusinessPartner").
+		Preload("CompanyProfile").
+		Preload("Wallet").
+		First(&company).Error; err != nil {
 		return nil, err
 	}
 	return &company, nil

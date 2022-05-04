@@ -7,7 +7,7 @@ import (
 // CreditIncrease model
 type CreditIncrease struct {
 	Base
-	Company            uuid.UUID `json:"company" gorm:"not null;index"`
+	Company            uuid.UUID `json:"company" gorm:"not null;index;column:company"`
 	Wallet             uuid.UUID `json:"wallet" gorm:"not null;index"`
 	Owner              string    `json:"user" gorm:"not null;index"`
 	CreditLimit        int64     `json:"credit_limit" gorm:"index;not null"`

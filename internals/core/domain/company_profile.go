@@ -7,7 +7,7 @@ import (
 // CompanyProfile model
 type CompanyProfile struct {
 	Base
-	Company            uuid.UUID `json:"company,omitempty" gorm:"foreignKey:Company;references:ID"`
+	Company            uuid.UUID `json:"company,omitempty" gorm:"column:company"`
 	RCNumber           string    `json:"rc_number" gorm:"index;not null"`
 	BusinessTin        string    `json:"business_tin" gorm:"not null"`
 	BusinessType       string    `json:"business_type" gorm:"not null"`
