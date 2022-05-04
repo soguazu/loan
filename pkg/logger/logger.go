@@ -10,7 +10,6 @@ import (
 	"io"
 	"os"
 	"runtime"
-	"strings"
 )
 
 type logger struct {
@@ -72,6 +71,7 @@ func (l *logger) Hook() *log.Logger {
 }
 
 func formatFilePath(path string) string {
-	arr := strings.Split(path, "/")
-	return arr[len(arr)-1]
+	//arr := strings.Split(path, "/")
+	//return arr[len(arr)-1]
+	return path
 }

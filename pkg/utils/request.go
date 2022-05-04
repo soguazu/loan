@@ -44,7 +44,7 @@ func (r *Client) GET(method, link string, params map[string]string) ([]byte, err
 		r.SetHeader(req)
 	}
 
-	client := http.Client{Timeout: 2 * time.Second}
+	client := http.Client{Timeout: time.Duration(10) * time.Second}
 
 	response, err := client.Do(req)
 

@@ -22,29 +22,29 @@ func NewAddressService(cr ports.IAddressRepository, l *log.Logger) ports.IAddres
 }
 
 func (as *addressService) GetAddressByID(id string) (*domain.Address, error) {
-	company, err := as.AddressRepository.GetByID(id)
+	address, err := as.AddressRepository.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
-	return company, nil
+	return address, nil
 }
 
 func (as *addressService) GetAddress(filter interface{}) ([]domain.Address, error) {
-	companies, err := as.AddressRepository.GetBy(filter)
+	addresses, err := as.AddressRepository.GetBy(filter)
 	if err != nil {
 		as.logger.Error(err)
 		return nil, err
 	}
-	return companies, nil
+	return addresses, nil
 }
 
 func (as *addressService) GetAllAddress(pagination *utils.Pagination) (*utils.Pagination, error) {
-	companies, err := as.AddressRepository.Get(pagination)
+	addresses, err := as.AddressRepository.Get(pagination)
 	if err != nil {
 		as.logger.Error(err)
 		return nil, err
 	}
-	return companies, nil
+	return addresses, nil
 }
 
 func (as *addressService) GetAddressBy(filter interface{}) ([]domain.Address, error) {
