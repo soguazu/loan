@@ -211,7 +211,7 @@ func (c *companyService) UnderWriting(id string) (*common.UnderWritingResponse, 
 		}
 	}
 
-	wallet[0].CreditLimit = int64(creditLimit)
+	wallet[0].CreditLimit = utils.ToMinorUnit(creditLimit)
 
 	err = c.WalletRepository.Persist(&wallet[0])
 	if err != nil {

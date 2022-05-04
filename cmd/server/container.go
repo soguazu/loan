@@ -41,7 +41,7 @@ func Injection() {
 		companyProfileHandler    = handlers.NewCompanyProfileHandler(companyProfileService, logging, "Company profile")
 
 		walletRepository = repositories.NewWalletRepository(DBConnection)
-		walletService    = services.NewWalletService(walletRepository, logging)
+		walletService    = services.NewWalletService(walletRepository, DBConnection, logging)
 		walletHandler    = handlers.NewWalletHandler(walletService, logging, "Wallet")
 
 		creditLimitRequestRepository = repositories.NewCreditLimitRequestRepository(DBConnection)
