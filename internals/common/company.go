@@ -121,15 +121,17 @@ type KYCCheckResponse struct {
 	Data KYCCheckPayload `json:"data"`
 }
 
+//KYCCheckPayload struct
 type KYCCheckPayload struct {
 	Details KYCCheckNestedPayload `json:"details"`
 }
 
+//KYCCheckNestedPayload struct
 type KYCCheckNestedPayload struct {
 	RCNumber    string `json:"rc_number"`
 	CompanyName string `json:"company_name"`
 	Address     string `json:"address"`
-	Date_Reg    string `json:"date_reg"`
+	DateReg     string `json:"date_reg"`
 }
 
 // TransactionsCheckRequest struct

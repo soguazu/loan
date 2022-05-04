@@ -304,6 +304,7 @@ func (c *companyService) CashBalanceCheck(wallet *domain.Wallet) (int32, float64
 }
 
 func (c *companyService) TransactionsCheck(wallet *domain.Wallet) (float64, float64, int32, error) {
+
 	From := time.Now().AddDate(0, -7, 0).Format("2006-01-02")
 	To := time.Now().AddDate(0, -1, 0).Format("2006-01-02")
 

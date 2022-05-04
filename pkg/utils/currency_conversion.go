@@ -4,6 +4,7 @@ import (
 	"strconv"
 )
 
+// ToMinorUnit converts to kobo
 func ToMinorUnit(amount float64) int64 {
 	Precision := 2
 	bottom := "100"
@@ -19,6 +20,7 @@ func ToMinorUnit(amount float64) int64 {
 	return int64(Amount)
 }
 
+// ToMajorUnit converts to naira
 func ToMajorUnit(amount float64) float64 {
 	Precision := 2
 	bottom := "100"

@@ -44,6 +44,10 @@ func Injection() {
 		walletService    = services.NewWalletService(walletRepository, DBConnection, logging)
 		walletHandler    = handlers.NewWalletHandler(walletService, logging, "Wallet")
 
+		expenseCategoryRepository = repositories.NewExpenseCategoryRepository(DBConnection)
+		expenseCategoryService    = services.NewExpenseCategoryService(expenseCategoryRepository, logging)
+		expenseCategoryHandler    = handlers.NewExpenseCategoryHandler(expenseCategoryService, logging, "Expense category")
+
 		creditLimitRequestRepository = repositories.NewCreditLimitRequestRepository(DBConnection)
 
 		companyRepository = repositories.NewCompanyRepository(DBConnection)
@@ -99,6 +103,13 @@ func Injection() {
 	wallet.POST("/webhook", walletHandler.CreateWallet)
 	wallet.DELETE("/:id", walletHandler.DeleteWallet)
 	wallet.PATCH("/:id", walletHandler.UpdateWallet)
+
+	expenseCategory := v1.Group("/expense_category")
+	expenseCategory.GET("/", expenseCategoryHandler.GetAllExpenseCategory)
+	expenseCategory.GET("/:id", expenseCategoryHandler.GetExpenseCategoryByID)
+	expenseCategory.POST("/", expenseCategoryHandler.CreateExpenseCategory)
+	expenseCategory.DELETE("/:id", expenseCategoryHandler.DeleteExpenseCategory)
+	expenseCategory.PATCH("/:id", expenseCategoryHandler.UpdateExpenseCategory)
 
 	err := ginRoutes.SERVE()
 

@@ -4,3 +4,4 @@ docs/
 .idea/
 .history
 go.mod
+evea.db
