@@ -2,18 +2,16 @@ package tx
 
 import (
 	"core_business/internals/core/ports"
-	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
 type gormUnitOfWork struct {
-	db     *gorm.DB
-	logger *log.Logger
+	db *gorm.DB
 }
 
 // NewGormUnitOfWork will create a new gorm unit of work
-func NewGormUnitOfWork(db *gorm.DB, l *log.Logger) ports.IUnitOfWork {
-	return &gormUnitOfWork{db: db, logger: l}
+func NewGormUnitOfWork(db *gorm.DB) ports.IUnitOfWork {
+	return &gormUnitOfWork{db: db}
 }
 
 func (u *gormUnitOfWork) Begin() (*gorm.DB, error) {

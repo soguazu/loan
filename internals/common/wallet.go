@@ -7,10 +7,11 @@ import (
 
 // UpdateWalletRequest DTO to update wallet
 type UpdateWalletRequest struct {
-	CreditLimit     *int64 `json:"credit_limit,omitempty"`
-	PreviousBalance *int64 `json:"previous_balance,omitempty"`
-	CurrentBalance  *int64 `json:"current_balance,omitempty"`
-	Payment         *int64 `json:"payment,omitempty"`
+	CreditLimit     *int64   `json:"credit_limit,omitempty"`
+	PreviousBalance *int64   `json:"previous_balance,omitempty"`
+	CurrentSpending *int64   `json:"current_spending,omitempty"`
+	Payment         *float64 `json:"payment,omitempty"`
+	Type            *string  `json:"type,omitempty"`
 }
 
 // GetWalletResponse DTO
@@ -19,8 +20,8 @@ type GetWalletResponse struct {
 	Company         uuid.UUID `json:"company,omitempty"`
 	CreditLimit     int64     `json:"credit_limit"`
 	PreviousBalance int64     `json:"previous_balance"`
-	CurrentBalance  int64     `json:"current_balance"`
-	Payment         int64     `json:"payment"`
+	CurrentSpending int64     `json:"current_spending"`
+	CashBackPayment int64     `json:"cash_back_payment"`
 	AccountID       string    `json:"account_id"`
 	CustomerID      string    `json:"customerId"`
 	Status          bool      `json:"status"`
@@ -35,8 +36,8 @@ type CreateWalletResponse struct {
 	Company         uuid.UUID `json:"company,omitempty"`
 	CreditLimit     int64     `json:"credit_limit"`
 	PreviousBalance int64     `json:"previous_balance"`
-	CurrentBalance  int64     `json:"current_balance"`
-	Payment         int64     `json:"payment"`
+	CurrentSpending int64     `json:"current_spending"`
+	CashBackPayment int64     `json:"cash_back_payment"`
 	AccountID       string    `json:"account_id"`
 	CustomerID      string    `json:"customerId"`
 	Status          bool      `json:"status"`

@@ -4,6 +4,7 @@ import (
 	"core_business/internals/core/domain"
 	"core_business/internals/core/ports"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type walletRepository struct {
@@ -20,6 +21,17 @@ func NewWalletRepository(db *gorm.DB) ports.IWalletRepository {
 func (w *walletRepository) GetByID(id string) (*domain.Wallet, error) {
 	var wallet domain.Wallet
 	if err := w.db.Where("id = ?", id).First(&wallet).Error; err != nil {
+		return nil, err
+	}
+	return &wallet, nil
+}
+
+func (w *walletRepository) GetByIDForUpdate(id string) (*domain.Wallet, error) {
+	var wallet domain.Wallet
+	if err := w.db.Clauses(clause.Locking{
+		Strength: "UPDATE",
+		Options:  "NOWAIT",
+	}).Where("id = ?", id).First(&wallet).Error; err != nil {
 		return nil, err
 	}
 	return &wallet, nil

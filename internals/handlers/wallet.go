@@ -91,9 +91,11 @@ func (wh *walletHandler) CreateWallet(c *gin.Context) {
 		AccountID:       body.AccountID,
 		CustomerID:      body.CustomerID,
 		PreviousBalance: 0,
-		CurrentBalance:  0,
+		CurrentSpending: 0,
+		AvailableCredit: 0,
 		CreditLimit:     0,
-		Payment:         0,
+		CashBackPayment: 0,
+		TotalBalance:    0,
 		Status:          true,
 	}
 	err := wh.WalletService.CreateWallet(wallet)
