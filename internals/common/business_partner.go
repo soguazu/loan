@@ -7,7 +7,7 @@ import (
 // UpdateBusinessPartnerRequest DTO to update business partner
 type UpdateBusinessPartnerRequest struct {
 	Name  *string `json:"name,omitempty"`
-	Phone *string `json:"phone,omitempty"`
+	Phone *string `json:"phone,omitempty" binding:"e164"`
 }
 
 // GetBusinessPartnerResponse DTO
@@ -36,5 +36,5 @@ type FilterBusinessPartnerDataResponse struct {
 type CreateBusinessPartnerRequest struct {
 	Company uuid.UUID `json:"company" binding:"required"`
 	Name    string    `json:"name" binding:"required"`
-	Phone   string    `json:"phone" binding:"required"`
+	Phone   string    `json:"phone" binding:"required,e164"`
 }
