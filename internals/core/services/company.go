@@ -412,7 +412,17 @@ func (c *companyService) CalculateEIRation(totalCredit, totalDebit float64) (int
 }
 
 func (c *companyService) RequestCreditLimitIncrease(id string, body *domain.CreditIncrease) error {
-	wallet, err := c.WalletRepository.GetByID(id)
+	ID, err := uuid.FromString(id)
+
+	if err != nil {
+		return err
+	}
+
+	walletEntity := domain.Wallet{
+		Company: ID,
+	}
+
+	wallet, err := c.WalletRepository.GetBy(walletEntity)
 	if err != nil {
 		c.logger.Error(err)
 		return err
@@ -424,7 +434,7 @@ func (c *companyService) RequestCreditLimitIncrease(id string, body *domain.Cred
 		return err
 	}
 
-	body.Wallet = wallet.ID
+	body.Wallet = wallet[0].ID
 	body.Company = company.ID
 	body.Owner = company.Owner
 
