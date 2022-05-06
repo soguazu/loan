@@ -33,7 +33,7 @@ rabbitmq:
 .PHONY:rabbitmq
 
 seed:
-	go run seeder/2022022201-seed.go
+	go run seeder/seed.go
 .PHONY:seed
 
 test:
