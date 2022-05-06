@@ -14,4 +14,5 @@ type Address struct {
 	State              string    `json:"state" gorm:"not null"`
 	Country            string    `json:"country" gorm:"not null"`
 	UtilityBill        string    `json:"utility_bill" gorm:"not null"`
+	PostalCode         string    `json:"postalCode" gorm:"default:'100001'"`
 }

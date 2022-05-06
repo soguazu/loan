@@ -16,5 +16,6 @@ type Wallet struct {
 	CashBackPayment int64     `json:"cash_back_payment"`
 	AccountID       string    `json:"account_id" gorm:"not null;index"`
 	CustomerID      string    `json:"customerId" gorm:"not null;index"`
+	SudoCustomerID  *string   `json:"sudo_customer_id"`
 	Status          bool      `json:"status" gorm:"not null;index"`
 }
