@@ -3,16 +3,14 @@ package handlers
 import (
 	"core_business/internals/common"
 	"core_business/internals/common/types"
-	"core_business/internals/core/domain"
 	"core_business/internals/core/ports"
 	"core_business/pkg/utils"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 type transactionHandler struct {
@@ -191,23 +189,30 @@ func (th *transactionHandler) GetAllTransaction(c *gin.Context) {
 // @Param        sort   query  string  false  "Sort by"
 // @Success      200  {object}  common.GetAllResponse
 // @Failure      500  {object}  common.Error
-// @Router       /transaction/webhook [get]
+// @Router       /transaction/webhook [post]
 func (th *transactionHandler) CreateTransaction(c *gin.Context) {
-	//var body common.CreateCardRequest
-	//if err := c.ShouldBindJSON(&body); err != nil {
-	//	th.logger.Error(err)
-	//	c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
-	//	return
-	//}
-
-	jsonData, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		// Handle error
+	var body common.CreateTransactionRequest
+	if err := c.ShouldBindJSON(&body); err != nil {
+		th.logger.Error(err)
+		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
+		return
 	}
 
-	fmt.Println(jsonData)
+	if strings.ToLower(body.Type) != "authorization.request" {
+		th.logger.Error("invalid webhook")
+		c.JSON(http.StatusBadRequest, result.ReturnErrorResult("invalid webhook"))
+		return
+	}
 
-	c.JSON(http.StatusCreated, result.ReturnSuccessResult(domain.Transaction{}, message.GetResponseMessage(th.handlerName, types.CREATED)))
+	err := th.TransactionService.CreateTransaction(&body)
+
+	if err != nil {
+		th.logger.Error(err)
+		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusCreated, result.ReturnSuccessMessage(message.GetResponseMessage(th.handlerName, types.OKAY)))
 
 }
 

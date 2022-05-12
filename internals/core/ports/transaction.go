@@ -26,7 +26,7 @@ type ITransactionService interface {
 	GetTransactionByCompanyID(id string, pagination *utils.Pagination) (*utils.Pagination, error)
 	GetTransactionByCardID(id string, pagination *utils.Pagination) (*utils.Pagination, error)
 	GetAllTransaction(pagination *utils.Pagination) (*utils.Pagination, error)
-	CreateTransaction(transaction *domain.Transaction) error
+	CreateTransaction(transaction *common.CreateTransactionRequest) error
 	UpdateTransaction(id string, body common.UpdateTransactionRequest) (*domain.Transaction, error)
 	DeleteTransaction(id string) error
 	LockTransaction(id string) (*domain.Transaction, error)

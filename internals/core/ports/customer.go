@@ -9,6 +9,7 @@ import (
 // ICustomerRepository defines the interface for customer repository
 type ICustomerRepository interface {
 	GetByID(id string) (*domain.Customer, error)
+	GetBy(filter interface{}) (*domain.Customer, error)
 	Get(pagination *utils.Pagination) (*utils.Pagination, error)
 	Persist(customer *domain.Customer) error
 	Delete(id string) error

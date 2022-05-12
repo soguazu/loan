@@ -1,10 +1,8 @@
 package common
 
 const (
-	// CardTransactionPOS transaction type for POS
-	CardTransactionPOS PricingIdentifier = "ngn-card-pos"
-	// CardTransactionWEB transaction type for WEB
-	CardTransactionWEB PricingIdentifier = "ngn-card-web"
+	// CardTransactionBOTH transaction type for POS
+	CardTransactionBOTH PricingIdentifier = "ngn-card-both"
 	// CardTransactionATM transaction type for ATM
 	CardTransactionATM PricingIdentifier = "ngn-card-atm"
 	// CardCreation price identifier type for create card
