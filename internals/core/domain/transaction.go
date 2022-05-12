@@ -51,6 +51,7 @@ type Transaction struct {
 	Company           uuid.UUID          `json:"company,omitempty" gorm:"column:company"`
 	Wallet            uuid.UUID          `json:"wallet,omitempty" gorm:"column:wallet"`
 	Card              uuid.UUID          `json:"card,omitempty" gorm:"column:card"`
+	PartnerCardID     string             `json:"partner_card_id" gorm:"not null"`
 	Customer          uuid.UUID          `json:"customer,omitempty" gorm:"column:customer"`
 	PartnerCustomerID string             `json:"partner_customer_id"`
 	Debit             float64            `json:"debit"`

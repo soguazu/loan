@@ -11,6 +11,7 @@ import (
 type IWalletRepository interface {
 	GetByID(id string) (*domain.Wallet, error)
 	GetByIDForUpdate(id string) (*domain.Wallet, error)
+	GetByCompany(id string) (*domain.Wallet, error)
 	GetBy(filter interface{}) ([]domain.Wallet, error)
 	Persist(wallet *domain.Wallet) error
 	Delete(id string) error

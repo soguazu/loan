@@ -37,6 +37,14 @@ func (w *walletRepository) GetByIDForUpdate(id string) (*domain.Wallet, error) {
 	return &wallet, nil
 }
 
+func (w *walletRepository) GetByCompany(id string) (*domain.Wallet, error) {
+	var wallet domain.Wallet
+	if err := w.db.Where("company = ?", id).First(&wallet).Error; err != nil {
+		return nil, err
+	}
+	return &wallet, nil
+}
+
 func (w *walletRepository) GetBy(filter interface{}) ([]domain.Wallet, error) {
 	var wallet []domain.Wallet
 	if err := w.db.Model(&domain.Wallet{}).Find(&wallet, filter).Error; err != nil {

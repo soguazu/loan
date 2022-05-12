@@ -1,6 +1,7 @@
 package server
 
 import (
+	"core_business/internals/core/ports"
 	"core_business/internals/core/services"
 	"core_business/internals/handlers"
 	"core_business/internals/repositories"
@@ -13,6 +14,7 @@ import (
 // Injection inject all dependencies
 func Injection() {
 	var logging *log.Logger
+	var cardRepository ports.ICardRepository = repositories.NewCardRepository(DBConnection)
 
 	if config.Instance.Env == "development" {
 		logging = logger.NewLogger(log.New()).MakeLogger("logs/info", true)
@@ -58,11 +60,12 @@ func Injection() {
 		feeRepository      = repositories.NewFeeRepository(DBConnection)
 
 		transactionRepository = repositories.NewTransactionRepository(DBConnection)
-		transactionService    = services.NewTransactionService(transactionRepository, logging)
-		transactionHandler    = handlers.NewTransactionHandler(transactionService, logging, "Transaction")
+		transactionService    = services.NewTransactionService(transactionRepository,
+			customerRepository, walletRepository, feeRepository,
+			companyRepository, cardRepository, walletService, logging)
+		transactionHandler = handlers.NewTransactionHandler(transactionService, logging, "Transaction")
 
-		cardRepository = repositories.NewCardRepository(DBConnection)
-		cardService    = services.NewCardService(cardRepository, customerRepository,
+		cardService = services.NewCardService(cardRepository, customerRepository,
 			addressRepository, companyRepository, feeRepository,
 			walletService, transactionRepository,
 			walletRepository, logging)
@@ -131,7 +134,7 @@ func Injection() {
 	transaction.GET("/:id", transactionHandler.GetTransactionByID)
 	transaction.GET("/company/:id", transactionHandler.GetTransactionByCompanyID)
 	transaction.GET("/card/:id", transactionHandler.GetTransactionByCardID)
-	transaction.POST("/", transactionHandler.CreateTransaction)
+	transaction.POST("/webhook", transactionHandler.CreateTransaction)
 	transaction.PATCH("/:id", transactionHandler.UpdateTransaction)
 	transaction.DELETE("/:id", transactionHandler.DeleteTransaction)
 	transaction.PATCH("/:id/lock", transactionHandler.LockTransaction)

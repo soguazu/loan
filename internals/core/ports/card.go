@@ -11,6 +11,7 @@ import (
 // ICardRepository defines the interface for card repository
 type ICardRepository interface {
 	GetByID(id string) (*domain.Card, error)
+	GetBy(id string) (*domain.Card, error)
 	GetCardByCompanyID(id string, pagination *utils.Pagination) (*utils.Pagination, error)
 	Get(pagination *utils.Pagination) (*utils.Pagination, error)
 	Persist(card *domain.Card) error

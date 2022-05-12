@@ -26,6 +26,14 @@ func (c *customerRepository) GetByID(id string) (*domain.Customer, error) {
 	return &customer, nil
 }
 
+func (c *customerRepository) GetBy(filter interface{}) (*domain.Customer, error) {
+	var customer *domain.Customer
+	if err := c.db.Model(&domain.Customer{}).Find(&customer, filter).Error; err != nil {
+		return nil, err
+	}
+	return customer, nil
+}
+
 func (c *customerRepository) Get(pagination *utils.Pagination) (*utils.Pagination, error) {
 	var customers []domain.Customer
 	if err := c.db.Scopes(utils.Paginate(customers, pagination, c.db)).Find(&customers).Error; err != nil {

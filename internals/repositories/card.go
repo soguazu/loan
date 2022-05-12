@@ -41,6 +41,14 @@ func (c *cardRepository) GetCardByCompanyID(id string, pagination *utils.Paginat
 	return pagination, nil
 }
 
+func (c *cardRepository) GetBy(id string) (*domain.Card, error) {
+	var card domain.Card
+	if err := c.db.Where("partner_card_id = ?", id).First(&card).Error; err != nil {
+		return nil, err
+	}
+	return &card, nil
+}
+
 func (c *cardRepository) Get(pagination *utils.Pagination) (*utils.Pagination, error) {
 	var cards []domain.Card
 	if err := c.db.Scopes(utils.Paginate(cards, pagination, c.db)).Find(&cards).Error; err != nil {

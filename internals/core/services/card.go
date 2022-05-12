@@ -140,13 +140,14 @@ func (cs *cardService) CreateCard(body common.CreateCardRequest) (*domain.Card, 
 	}
 
 	customer := &domain.Customer{
-		Company:    company.ID,
-		Wallet:     wallet[0].ID,
-		Address:    sudoCustomer.Data.BillingAddress.Line1,
-		City:       sudoCustomer.Data.BillingAddress.City,
-		State:      sudoCustomer.Data.BillingAddress.State,
-		Country:    sudoCustomer.Data.BillingAddress.Country,
-		PostalCode: sudoCustomer.Data.BillingAddress.PostalCode,
+		Company:           company.ID,
+		Wallet:            wallet[0].ID,
+		PartnerCustomerID: sudoCustomer.Data.ID,
+		Address:           sudoCustomer.Data.BillingAddress.Line1,
+		City:              sudoCustomer.Data.BillingAddress.City,
+		State:             sudoCustomer.Data.BillingAddress.State,
+		Country:           sudoCustomer.Data.BillingAddress.Country,
+		PostalCode:        sudoCustomer.Data.BillingAddress.PostalCode,
 	}
 
 	cardEntity := cs.ReturnCardObj(&body, sudoCustomer)

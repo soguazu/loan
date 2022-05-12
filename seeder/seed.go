@@ -40,14 +40,14 @@ func seed(db *gorm.DB) error {
 	pricing := []domain.Fee{
 		{
 			Channel:    "Transaction POS - card",
-			Identifier: "ngn-card-pos",
+			Identifier: "ngn-card-both",
 			Fee:        3,
 			IsDollar:   false,
 			IsPercent:  true,
 		},
 		{
 			Channel:    "Transaction WEB - card",
-			Identifier: "ngn-card-web",
+			Identifier: "ngn-card-both",
 			Fee:        3,
 			IsDollar:   false,
 			IsPercent:  true,

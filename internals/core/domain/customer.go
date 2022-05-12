@@ -9,6 +9,7 @@ type Customer struct {
 	Base
 	Company            uuid.UUID     `json:"company,omitempty" gorm:"column:company"`
 	Wallet             uuid.UUID     `json:",omitempty"`
+	PartnerCustomerID  string        `json:"partner_customer_id"`
 	Address            string        `json:"address" gorm:"index;not null"`
 	ApartmentUnitFloor int32         `json:"apartment_unit_floor"`
 	City               string        `json:"city" gorm:"not null"`
