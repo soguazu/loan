@@ -39,36 +39,36 @@ func seed(db *gorm.DB) error {
 
 	pricing := []domain.Fee{
 		{
-			Channel:    "Transaction POS - VAN card",
-			Identifier: "ngn-van-card-pos",
+			Channel:    "Transaction POS - card",
+			Identifier: "ngn-card-pos",
 			Fee:        3,
 			IsDollar:   false,
 			IsPercent:  true,
 		},
 		{
-			Channel:    "Transaction WEB - VAN card",
-			Identifier: "ngn-van-card-web",
+			Channel:    "Transaction WEB - card",
+			Identifier: "ngn-card-web",
 			Fee:        3,
 			IsDollar:   false,
 			IsPercent:  true,
 		},
 		{
-			Channel:    "Transaction ATM - VAN card",
-			Identifier: "ngn-van-card-atm",
+			Channel:    "Transaction ATM - card",
+			Identifier: "ngn-card-atm",
 			Fee:        5,
 			IsDollar:   false,
 			IsPercent:  true,
 		},
 		{
-			Channel:    "MGN Virtual Card Creation",
+			Channel:    "NGN Virtual Card Creation - card",
 			Identifier: "ngn-vc-create",
-			Fee:        3,
-			IsDollar:   true,
+			Fee:        1700,
+			IsDollar:   false,
 			IsPercent:  false,
 		},
 		{
-			Channel:    "Card Shipping",
-			Identifier: "card-shipping",
+			Channel:    "Card Shipping - card",
+			Identifier: "ngn-card-shipping",
 			Fee:        1000,
 			IsDollar:   false,
 			IsPercent:  false,
@@ -83,8 +83,14 @@ func seed(db *gorm.DB) error {
 		}
 	}()
 
-	if err := tx.Create(&domain.Fee{}).Error; err != nil {
+	var fees []domain.Fee
+
+	if err := tx.Find(&fees).Error; err != nil {
 		return err
+	}
+
+	if len(fees) > 0 {
+		return nil
 	}
 
 	if err := tx.Create(&pricing).Error; err != nil {
@@ -92,4 +98,5 @@ func seed(db *gorm.DB) error {
 	}
 
 	return tx.Commit().Error
+
 }

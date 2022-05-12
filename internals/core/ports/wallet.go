@@ -23,6 +23,7 @@ type IWalletService interface {
 	GetWalletByID(id string) (*domain.Wallet, error)
 	CreateWallet(wallet *domain.Wallet) error
 	UpdateWallet(id string, body common.UpdateWalletRequest) (*domain.Wallet, error)
+	UpdateBalance(id string, body common.UpdateWalletRequest) (*domain.Wallet, error)
 	DeleteWallet(id string) error
 }
 
