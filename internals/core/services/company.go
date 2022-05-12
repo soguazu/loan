@@ -243,6 +243,10 @@ func (c *companyService) KYCCheck(companyProfile *domain.CompanyProfile) error {
 
 	byteResponse, err := Request.CHANGE("POST", "products/kyc/rc-verify", byteBody)
 
+	if err != nil {
+		return err
+	}
+
 	var response common.KYCCheckResponse
 
 	err = json.Unmarshal(byteResponse, &response)
@@ -278,6 +282,10 @@ func (c *companyService) CashBalanceCheck(wallet *domain.Wallet) (int32, float64
 	}
 
 	byteResponse, err := Request.CHANGE("POST", "transactions/balance/process", byteBody)
+
+	if err != nil {
+		return 0, 0, err
+	}
 
 	var response common.CashBalanceResponse
 

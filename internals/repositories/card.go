@@ -32,7 +32,7 @@ func (c *cardRepository) GetByID(id string) (*domain.Card, error) {
 func (c *cardRepository) GetCardByCompanyID(id string, pagination *utils.Pagination) (*utils.Pagination, error) {
 	var cards []domain.Card
 	if err := c.db.Scopes(utils.Paginate(cards, pagination, c.db)).
-		Where("Company = ?", id).
+		Where("Company = ? AND Lock = ? 	AND Status = ? AND type = ?", id, false, "active", pagination.GetFilter()).
 		Find(&cards).Error; err != nil {
 		return nil, err
 	}

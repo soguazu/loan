@@ -22,14 +22,14 @@ type ITransactionRepository interface {
 
 // ITransactionService defines the interface for transaction service
 type ITransactionService interface {
-	GetCardByID(id string) (*domain.Card, error)
-	GetCardByCompanyID(id string, pagination *utils.Pagination) (*utils.Pagination, error)
+	GetTransactionByID(id string) (*domain.Transaction, error)
+	GetTransactionByCompanyID(id string, pagination *utils.Pagination) (*utils.Pagination, error)
 	GetTransactionByCardID(id string, pagination *utils.Pagination) (*utils.Pagination, error)
-	GetAllCard(pagination *utils.Pagination) (*utils.Pagination, error)
-	CreateCard(address *domain.Card) error
-	UpdateCard(params string, body common.UpdateAddressRequest) (*domain.Card, error)
-	DeleteCard(id string) error
-	LockTransaction(id string) (*domain.Card, error)
+	GetAllTransaction(pagination *utils.Pagination) (*utils.Pagination, error)
+	CreateTransaction(transaction *domain.Transaction) error
+	UpdateTransaction(id string, body common.UpdateTransactionRequest) (*domain.Transaction, error)
+	DeleteTransaction(id string) error
+	LockTransaction(id string) (*domain.Transaction, error)
 }
 
 // ITransactionHandler defines the interface for transaction handler

@@ -24,12 +24,11 @@ type ICardService interface {
 	GetCardByID(id string) (*domain.Card, error)
 	GetCardByCompanyID(id string, pagination *utils.Pagination) (*utils.Pagination, error)
 	GetAllCard(pagination *utils.Pagination) (*utils.Pagination, error)
-	CreateCard(address *domain.Card) error
-	UpdateCard(params string, body common.UpdateAddressRequest) (*domain.Card, error)
-	DeleteCard(id string) error
-	LockCard(id string) (*domain.Card, error)
-	CancelCard(id string) (*domain.Card, error)
-	ChangeCardPin(id string) (*domain.Card, error)
+	CreateCard(card common.CreateCardRequest) (*domain.Card, error)
+	UpdateCard(id string, body common.UpdateSudoCardRequest) (*domain.Card, error)
+	LockCard(id string, body common.ActionOnCardRequest) (*domain.Card, error)
+	CancelCard(id string, body common.ChangeCardStatusRequest) error
+	ChangeCardPin(id string, body common.ChangeCardPinRequest) error
 }
 
 // ICardHandler defines the interface for card handler
@@ -41,6 +40,5 @@ type ICardHandler interface {
 	UpdateCard(c *gin.Context)
 	CancelCard(c *gin.Context)
 	ChangeCardPin(c *gin.Context)
-	DeleteCard(c *gin.Context)
 	LockCard(c *gin.Context)
 }

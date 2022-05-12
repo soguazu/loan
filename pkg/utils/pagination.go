@@ -13,6 +13,7 @@ type Pagination struct {
 	TotalRows  int64       `json:"total_rows"`
 	TotalPages int         `json:"total_pages"`
 	Rows       interface{} `json:"rows"`
+	Filter     string      `json:"filter"`
 }
 
 // GetOffset calculate the offset
@@ -42,6 +43,11 @@ func (p *Pagination) GetSort() string {
 		p.Sort = "created_at asc"
 	}
 	return p.Sort
+}
+
+// GetFilter assign the default to filter if it wasn't set
+func (p *Pagination) GetFilter() string {
+	return p.Filter
 }
 
 // Paginate this handles the magic of pagination

@@ -53,6 +53,21 @@ func Injection() {
 		companyRepository = repositories.NewCompanyRepository(DBConnection)
 		companyService    = services.NewCompanyService(companyRepository, companyProfileRepository, walletRepository, creditLimitRequestRepository, logging)
 		companyHandler    = handlers.NewCompanyHandler(companyService, logging, "Company")
+
+		customerRepository = repositories.NewCustomerRepository(DBConnection)
+		feeRepository      = repositories.NewFeeRepository(DBConnection)
+
+		transactionRepository = repositories.NewTransactionRepository(DBConnection)
+		transactionService    = services.NewTransactionService(transactionRepository, logging)
+		transactionHandler    = handlers.NewTransactionHandler(transactionService, logging, "Transaction")
+
+		cardRepository = repositories.NewCardRepository(DBConnection)
+		cardService    = services.NewCardService(cardRepository, customerRepository,
+			addressRepository, companyRepository, feeRepository,
+			walletService, transactionRepository,
+			walletRepository, logging)
+
+		cardHandler = handlers.NewCardHandler(cardService, logging, "Card")
 	)
 
 	v1 := ginRoutes.GROUP("v1")
@@ -110,6 +125,26 @@ func Injection() {
 	expenseCategory.POST("/", expenseCategoryHandler.CreateExpenseCategory)
 	expenseCategory.DELETE("/:id", expenseCategoryHandler.DeleteExpenseCategory)
 	expenseCategory.PATCH("/:id", expenseCategoryHandler.UpdateExpenseCategory)
+
+	transaction := v1.Group("/transaction")
+	transaction.GET("/", transactionHandler.GetAllTransaction)
+	transaction.GET("/:id", transactionHandler.GetTransactionByID)
+	transaction.GET("/company/:id", transactionHandler.GetTransactionByCompanyID)
+	transaction.GET("/card/:id", transactionHandler.GetTransactionByCardID)
+	transaction.POST("/", transactionHandler.CreateTransaction)
+	transaction.PATCH("/:id", transactionHandler.UpdateTransaction)
+	transaction.DELETE("/:id", transactionHandler.DeleteTransaction)
+	transaction.PATCH("/:id/lock", transactionHandler.LockTransaction)
+
+	card := v1.Group("/card")
+	card.GET("/", cardHandler.GetAllCard)
+	card.GET("/:id", cardHandler.GetCardByID)
+	card.GET("/company/:id", cardHandler.GetCardByCompanyID)
+	card.POST("/", cardHandler.CreateCard)
+	card.PATCH("/:id", cardHandler.UpdateCard)
+	card.PATCH("/:id/cancel", cardHandler.CancelCard)
+	card.PATCH("/:id/lock", cardHandler.LockCard)
+	card.PATCH("/:id/change-pin", cardHandler.ChangeCardPin)
 
 	err := ginRoutes.SERVE()
 

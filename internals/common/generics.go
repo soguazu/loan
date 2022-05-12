@@ -13,3 +13,9 @@ type GetAllResponse struct {
 	Message string           `json:"message"`
 	Data    utils.Pagination `json:"data"`
 }
+
+// PricingIdentifier type
+type PricingIdentifier string
+
+// TransactionType type
+type TransactionType string
