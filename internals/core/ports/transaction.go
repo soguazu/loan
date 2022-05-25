@@ -14,6 +14,7 @@ type ITransactionRepository interface {
 	GetTransactionByCompanyID(id string, pagination *utils.Pagination) (*utils.Pagination, error)
 	GetTransactionByCardID(id string, pagination *utils.Pagination) (*utils.Pagination, error)
 	Get(pagination *utils.Pagination) (*utils.Pagination, error)
+	GetBy(filter interface{}) ([]domain.Transaction, error)
 	Persist(transaction *domain.Transaction) error
 	Delete(id string) error
 	DeleteAll() error
