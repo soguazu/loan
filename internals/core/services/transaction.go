@@ -7,7 +7,6 @@ import (
 	"core_business/pkg/utils"
 	"errors"
 	"fmt"
-	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 	"strings"
 )
@@ -78,6 +77,10 @@ func (ts *transactionService) GetAllTransaction(pagination *utils.Pagination) (*
 
 func (ts *transactionService) CreateTransaction(body *common.CreateTransactionRequest) error {
 
+	if strings.ToLower(strings.TrimSpace(body.Type)) == "transaction.created" {
+		fmt.Println("Just got here", body)
+	}
+	fmt.Println(body)
 	var (
 		chargeIdentify common.PricingIdentifier
 	)
@@ -150,7 +153,7 @@ func (ts *transactionService) CreateTransaction(body *common.CreateTransactionRe
 		Status:            domain.PendingStatus,
 		Entry:             domain.DebitEntry,
 		Channel:           domain.TransactionChannel(payload.TransactionMetadata.Channel),
-		Type:              domain.FeeType,
+		Type:              domain.TransactionType(strings.ToUpper(strings.TrimSpace(body.Type))),
 		CardType:          domain.CardType(payload.Card.Type),
 	}
 
@@ -167,7 +170,7 @@ func (ts *transactionService) CreateTransaction(body *common.CreateTransactionRe
 		Status:            domain.PendingStatus,
 		Entry:             domain.DebitEntry,
 		Channel:           domain.TransactionChannel(payload.TransactionMetadata.Channel),
-		Type:              domain.WithdrawalType,
+		Type:              domain.TransactionType(strings.ToUpper(strings.TrimSpace(body.Type))),
 		CardType:          domain.CardType(payload.Card.Type),
 	}
 
@@ -191,13 +194,6 @@ func (ts *transactionService) UpdateTransaction(id string, body common.UpdateTra
 
 	if body.Receipt != nil {
 		transaction.Receipt = *body.Receipt
-	}
-
-	if body.ExpenseCategory != nil {
-		transaction.ExpenseCategory, err = uuid.FromString(*body.ExpenseCategory)
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	err = ts.TransactionRepository.Persist(transaction)

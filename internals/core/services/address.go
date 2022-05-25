@@ -99,6 +99,9 @@ func (as *addressService) UpdateAddress(id string, body common.UpdateAddressRequ
 		address.Country = *body.Country
 	}
 
+	if body.PostalCode != nil {
+		address.PostalCode = *body.PostalCode
+	}
 	err = as.AddressRepository.Persist(address)
 
 	if err != nil {

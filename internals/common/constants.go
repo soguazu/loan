@@ -10,12 +10,15 @@ const (
 	// CardShipping price identifier type for card shipping
 	CardShipping PricingIdentifier = "ngn-card-shipping"
 
-	CustomerType   = "company"
-	CustomerStatus = "active"
-	Partner        = "sudo"
-
 	DebitTransaction  TransactionType = "debit"
 	CreditTransaction TransactionType = "credit"
+)
+
+const (
+	CustomerType   string = "company"
+	CustomerStatus        = "active"
+	Partner               = "sudo"
+	Currency              = "NGN"
 )
 
 // PhysicalCardIdentifier list of charges for create physical card

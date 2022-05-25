@@ -69,5 +69,4 @@ type Transaction struct {
 	ParentID          string             `json:"parent_id"` //Parent id for the refund
 	Lock              bool               `json:"lock" gorm:"default:false"`
 	Receipt           string             `json:"receipt"`
-	ExpenseCategory   uuid.UUID          `json:"expense_category,omitempty" gorm:"column:expense_category"`
 }
