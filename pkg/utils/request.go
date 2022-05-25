@@ -82,7 +82,7 @@ func (r *Client) CHANGE(method, url string, payload []byte) ([]byte, error) {
 		r.SetHeader(req)
 	}
 
-	client := http.Client{Timeout: time.Duration(10) * time.Second}
+	client := http.Client{Timeout: time.Duration(30) * time.Second}
 
 	response, err := client.Do(req)
 

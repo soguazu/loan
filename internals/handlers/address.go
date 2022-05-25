@@ -166,6 +166,7 @@ func (ah *addressHandler) CreateAddress(c *gin.Context) {
 		Country:            body.Country,
 		UtilityBill:        body.UtilityBill,
 		ApartmentUnitFloor: body.ApartmentUnitFloor,
+		PostalCode:         body.PostalCode,
 	}
 	err := ah.AddressService.CreateAddress(address)
 

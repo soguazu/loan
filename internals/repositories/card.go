@@ -5,6 +5,7 @@ import (
 	"core_business/internals/core/ports"
 	"core_business/pkg/utils"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type cardRepository struct {
@@ -21,8 +22,7 @@ func NewCardRepository(db *gorm.DB) ports.ICardRepository {
 func (c *cardRepository) GetByID(id string) (*domain.Card, error) {
 	var card domain.Card
 	if err := c.db.Where("id = ?", id).
-		Preload("Transaction").
-		Preload("Customer").
+		Preload(clause.Associations).
 		First(&card).Error; err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (c *cardRepository) GetByID(id string) (*domain.Card, error) {
 func (c *cardRepository) GetCardByCompanyID(id string, pagination *utils.Pagination) (*utils.Pagination, error) {
 	var cards []domain.Card
 	if err := c.db.Scopes(utils.Paginate(cards, pagination, c.db)).
-		Where("Company = ? AND Lock = ? 	AND Status = ? AND type = ?", id, false, "active", pagination.GetFilter()).
+		Where("Company = ? AND Lock = ? 	AND Status = ?", id, false, "active").
 		Find(&cards).Error; err != nil {
 		return nil, err
 	}

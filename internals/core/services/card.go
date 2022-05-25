@@ -10,6 +10,8 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"net/http"
+	"strings"
 )
 
 // CardRequest to create API request
@@ -98,18 +100,6 @@ func (cs *cardService) CreateCard(body common.CreateCardRequest) (*domain.Card, 
 		return nil, err
 	}
 
-	if body.Type == "virtual" {
-		chargesIdentifier = common.VirtualCardIdentifier
-		err = cs.GetAllCharges(chargesIdentifier, &wallet[0])
-	} else {
-		chargesIdentifier = common.PhysicalCardIdentifier
-		err = cs.GetAllCharges(chargesIdentifier, &wallet[0])
-	}
-
-	if err != nil {
-		return nil, err
-	}
-
 	company, err := cs.CompanyRepository.GetByID(body.Company.String())
 	if err != nil {
 		return nil, err
@@ -119,11 +109,15 @@ func (cs *cardService) CreateCard(body common.CreateCardRequest) (*domain.Card, 
 		Company: common.Company{
 			Name: company.Name,
 		},
-		Status: common.CustomerStatus,
+		Individual: common.Individual{
+			FirstName: body.User.FirstName,
+			LastName:  body.User.LastName,
+		},
+		Status: body.Status,
 		Type:   common.CustomerType,
-		Name:   fmt.Sprintf("%v %v", body.FirstName, body.LastName),
-		Phone:  body.Phone,
-		Email:  body.Email,
+		Name:   fmt.Sprintf("%v %v", body.User.FirstName, body.User.LastName),
+		Phone:  body.User.Phone,
+		Email:  body.User.Email,
 		BillingAddress: common.BillingAddress{
 			Line1:      address[0].Address,
 			City:       address[0].City,
@@ -152,6 +146,10 @@ func (cs *cardService) CreateCard(body common.CreateCardRequest) (*domain.Card, 
 
 	cardEntity := cs.ReturnCardObj(&body, sudoCustomer)
 
+	if cardEntity == nil {
+		return nil, errors.New("invalid card brand")
+	}
+
 	byteBody, err := json.Marshal(cardEntity)
 
 	if err != nil {
@@ -163,6 +161,22 @@ func (cs *cardService) CreateCard(body common.CreateCardRequest) (*domain.Card, 
 	var response common.CreateSudoCardResponse
 
 	err = json.Unmarshal(byteResponse, &response)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if response.StatusCode != 200 {
+		return nil, errors.New("error occurred creating card partner")
+	}
+
+	if strings.ToLower(body.Type) == "virtual" {
+		chargesIdentifier = common.VirtualCardIdentifier
+		err = cs.GetAllCharges(chargesIdentifier, &wallet[0])
+	} else if strings.ToLower(body.Type) == "physical" {
+		chargesIdentifier = common.PhysicalCardIdentifier
+		err = cs.GetAllCharges(chargesIdentifier, &wallet[0])
+	}
 
 	if err != nil {
 		return nil, err
@@ -183,12 +197,21 @@ func (cs *cardService) CreateCard(body common.CreateCardRequest) (*domain.Card, 
 		Brand:             response.Data.Brand,
 		Currency:          response.Data.Currency,
 		Status:            response.Data.Status,
-		Lock:              body.Lock,
 		Partner:           common.Partner,
-		CardAuth:          body.CardAuth,
 		Summary:           body.Summary,
 		Customer:          customer.ID,
-		//SpendingControls:  cardEntity.SpendingControls,
+		SpendingControls: domain.SpendingControls{
+			Channels: domain.Channels{
+				Pos:    response.Data.SpendingControls.Channels.Pos,
+				Web:    response.Data.SpendingControls.Channels.Web,
+				Atm:    response.Data.SpendingControls.Channels.Atm,
+				Mobile: response.Data.SpendingControls.Channels.Mobile,
+			},
+			SpendingLimits: domain.SpendingLimits{
+				Amount:   response.Data.SpendingControls.SpendingLimits[0].Amount,
+				Interval: response.Data.SpendingControls.SpendingLimits[0].Interval,
+			},
+		},
 		Business:    response.Data.Business,
 		Account:     response.Data.Account,
 		MaskedPan:   response.Data.MaskedPan,
@@ -218,7 +241,7 @@ func (cs *cardService) CreateSudoCustomer(customerDTO common.CreateCustomerReque
 		return nil, err
 	}
 
-	byteResponse, err := CardRequest.CHANGE("POST", "customer", byteBody)
+	byteResponse, err := CardRequest.CHANGE("POST", "customers", byteBody)
 
 	var response common.CreateSudoCustomerResponse
 
@@ -228,41 +251,62 @@ func (cs *cardService) CreateSudoCustomer(customerDTO common.CreateCustomerReque
 		return nil, err
 	}
 
+	fmt.Println(response)
+
+	if response.StatusCode != 200 {
+		return nil, errors.New("error occurred creating customer partner")
+	}
+
 	return &response, nil
 }
 
 func (cs *cardService) ReturnCardObj(body *common.CreateCardRequest,
-	sudoCustomer *common.CreateSudoCustomerResponse) common.CreateSudoCardRequest {
+	sudoCustomer *common.CreateSudoCustomerResponse) *common.CreateSudoCardRequest {
 	var card common.CreateSudoCardRequest
 
-	if body.Type == "virtual" {
+	if strings.ToLower(body.Type) == "virtual" {
 		card = common.CreateSudoCardRequest{
 			Type:             body.Type,
-			Name:             body.Name,
-			Brand:            body.Brand,
-			Currency:         body.Currency,
+			Brand:            cs.Capitalize(strings.ToLower(body.Brand)),
+			Currency:         common.Currency,
 			Status:           body.Status,
 			CustomerID:       sudoCustomer.Data.ID,
 			FundingSourceID:  config.Instance.FundingSource,
 			SpendingControls: body.SpendingControls,
 		}
-	} else {
+	} else if strings.ToLower(body.Type) == "physical" {
 		card = common.CreateSudoCardRequest{
 			Type:            body.Type,
-			Brand:           body.Brand,
-			Name:            body.Name,
-			Currency:        body.Currency,
+			Brand:           cs.Capitalize(strings.ToLower(body.Brand)),
+			Currency:        common.Currency,
 			Status:          body.Status,
 			CustomerID:      sudoCustomer.Data.ID,
 			FundingSourceID: config.Instance.FundingSource,
-			Number:          body.Number,
+			Number:          "",
 		}
+	} else {
+		return nil
 	}
 
-	return card
+	return &card
+}
+
+func (cs *cardService) Capitalize(value string) string {
+	return strings.ToUpper(string(value[0])) + value[1:]
 }
 
 func (cs *cardService) UpdateCard(id string, body common.UpdateSudoCardRequest) (*domain.Card, error) {
+	Headers := map[string]string{
+		"Accept":        "application/json; charset=utf-8",
+		"Authorization": "Bearer " + config.Instance.SudoAPIKey,
+		"Content-Type":  "application/json",
+	}
+
+	CardRequest = utils.Client{
+		BaseURL: config.Instance.SudoBaseURL,
+		Header:  Headers,
+	}
+
 	card, err := cs.CardRepository.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -292,23 +336,41 @@ func (cs *cardService) UpdateCard(id string, body common.UpdateSudoCardRequest) 
 		card.SpendingControls.Channels.Web = *body.SpendingControls.Channels.Web
 	}
 
+	body.SpendingControls.AllowedCategories = []string{}
+	body.SpendingControls.BlockedCategories = []string{}
+
 	byteBody, err := json.Marshal(body)
 
 	if err != nil {
 		return nil, err
 	}
 
+	fmt.Println("got here", string(byteBody))
+
 	url := fmt.Sprintf("%v/%v", "cards", card.PartnerCardID)
 
-	_, err = CardRequest.CHANGE("PUT", url, byteBody)
+	fmt.Println(url, "url")
+
+	byteResponse, err := CardRequest.CHANGE(http.MethodPut, url, byteBody)
 
 	if err != nil {
+		fmt.Println("E HAPPEN")
 		return nil, err
+	}
+
+	var response common.ProcessCardUpdate
+
+	err = json.Unmarshal(byteResponse, &response)
+
+	if response.StatusCode != 200 {
+		return nil, errors.New("error occurred updating card partner")
 	}
 
 	err = cs.CardRepository.Persist(card)
 
 	if err != nil {
+		fmt.Println("E HAPPEN 2")
+
 		return nil, err
 	}
 
@@ -333,25 +395,40 @@ func (cs *cardService) LockCard(id string, body common.ActionOnCardRequest) (*do
 }
 
 func (cs *cardService) CancelCard(id string, body common.ChangeCardStatusRequest) error {
+	Headers := map[string]string{
+		"Accept":        "application/json; charset=utf-8",
+		"Authorization": "Bearer " + config.Instance.SudoAPIKey,
+		"Content-Type":  "application/json",
+	}
+
+	CardRequest = utils.Client{
+		BaseURL: config.Instance.SudoBaseURL,
+		Header:  Headers,
+	}
+
 	card, err := cs.CardRepository.GetByID(id)
 
 	if err != nil {
 		return err
 	}
 
-	isValid := body.Status != "active" && body.Status != "inactive" && body.Status != "canceled"
+	isValid := body.Status != "active" && body.Status != "inactive" && body.Status != "cancelled"
 
 	if isValid {
 		return errors.New("invalid status")
 	}
 
+	var listOfSpendingLimits = []common.SpendingLimits{
+		common.SpendingLimits{
+			Amount:   card.SpendingControls.SpendingLimits.Amount,
+			Interval: card.SpendingControls.SpendingLimits.Interval,
+		},
+	}
+
 	request := common.CancelCardRequest{
 		Status: body.Status,
 		SpendingControls: common.SpendingControls{
-			SpendingLimits: common.SpendingLimits{
-				Amount:   card.SpendingControls.SpendingLimits.Amount,
-				Interval: card.SpendingControls.SpendingLimits.Interval,
-			},
+			SpendingLimits: listOfSpendingLimits,
 			Channels: common.Channels{
 				Pos:    card.SpendingControls.Channels.Pos,
 				Web:    card.SpendingControls.Channels.Web,
@@ -371,10 +448,18 @@ func (cs *cardService) CancelCard(id string, body common.ChangeCardStatusRequest
 
 	url := fmt.Sprintf("%v/%v", "cards", card.PartnerCardID)
 
-	_, err = CardRequest.CHANGE("PUT", url, byteBody)
+	byteResponse, err := CardRequest.CHANGE(http.MethodPut, url, byteBody)
 
 	if err != nil {
 		return err
+	}
+
+	var response common.ProcessCardUpdate
+
+	err = json.Unmarshal(byteResponse, &response)
+
+	if response.StatusCode != 200 {
+		return errors.New("error occurred updating card partner")
 	}
 
 	card.Status = body.Status
@@ -390,7 +475,19 @@ func (cs *cardService) CancelCard(id string, body common.ChangeCardStatusRequest
 }
 
 func (cs *cardService) ChangeCardPin(id string, body common.ChangeCardPinRequest) error {
-	_, err := cs.CardRepository.GetByID(id)
+
+	Headers := map[string]string{
+		"Accept":        "application/json; charset=utf-8",
+		"Authorization": "Bearer " + config.Instance.SudoAPIKey,
+		"Content-Type":  "application/json",
+	}
+
+	CardRequest = utils.Client{
+		BaseURL: config.Instance.SudoBaseURL,
+		Header:  Headers,
+	}
+
+	card, err := cs.CardRepository.GetByID(id)
 	if err != nil {
 		return err
 	}
@@ -401,12 +498,22 @@ func (cs *cardService) ChangeCardPin(id string, body common.ChangeCardPinRequest
 		return err
 	}
 
-	url := fmt.Sprintf("%v/%v/%v", "cards", body.OldPin, id)
+	url := fmt.Sprintf("%v/%v/%v", "cards", card.PartnerCardID, "pin")
 
-	_, err = CardRequest.CHANGE("PUT", url, byteBody)
+	byteResponse, err := CardRequest.CHANGE("PUT", url, byteBody)
 
 	if err != nil {
 		return err
+	}
+
+	var response common.ProcessCardUpdate
+
+	err = json.Unmarshal(byteResponse, &response)
+
+	fmt.Println(response)
+
+	if response.StatusCode != 200 {
+		return errors.New("error occurred updating card partner")
 	}
 
 	return nil

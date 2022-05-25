@@ -39,14 +39,7 @@ func seed(db *gorm.DB) error {
 
 	pricing := []domain.Fee{
 		{
-			Channel:    "Transaction POS - card",
-			Identifier: "ngn-card-both",
-			Fee:        3,
-			IsDollar:   false,
-			IsPercent:  true,
-		},
-		{
-			Channel:    "Transaction WEB - card",
+			Channel:    "Transaction both WEB and POS - card",
 			Identifier: "ngn-card-both",
 			Fee:        3,
 			IsDollar:   false,
@@ -61,7 +54,7 @@ func seed(db *gorm.DB) error {
 		},
 		{
 			Channel:    "NGN Virtual Card Creation - card",
-			Identifier: "ngn-vc-create",
+			Identifier: "ngn-card-create",
 			Fee:        1700,
 			IsDollar:   false,
 			IsPercent:  false,

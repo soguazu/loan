@@ -7,18 +7,18 @@ import (
 
 // SpendingControls set spending limit
 type SpendingControls struct {
-	AllowedCategories []string `json:"allowedCategories"`
-	BlockedCategories []string `json:"blockedCategories"`
-	Channels          `json:"channels"`
-	SpendingLimits    `json:"spendingLimits"`
+	AllowedCategories []string         `json:"allowedCategories"`
+	BlockedCategories []string         `json:"blockedCategories"`
+	Channels          Channels         `json:"channels"`
+	SpendingLimits    []SpendingLimits `json:"spendingLimits"`
 }
 
 // Channels available means of transaction
 type Channels struct {
-	Atm    bool `json:"atm" binding:"default:true"`
-	Web    bool `json:"web" binding:"default:true"`
-	Pos    bool `json:"pos" binding:"default:true"`
-	Mobile bool `json:"mobile" binding:"default:false"`
+	Atm    bool `json:"atm"`
+	Web    bool `json:"web"`
+	Pos    bool `json:"pos"`
+	Mobile bool `json:"mobile"`
 }
 
 //SpendingLimits set transaction limit on intervals
@@ -37,37 +37,36 @@ type User struct {
 
 // CreateCardRequest DTO
 type CreateCardRequest struct {
-	ID               uuid.UUID `json:"id,omitempty" binding:"required"`
-	Name             string    `json:"card_name" binding:"required"`
-	Company          uuid.UUID `json:"company,omitempty" binding:"required"`
-	Type             string    `json:"type" binding:"required;default:virtual"`
-	Brand            string    `json:"brand" binding:"required;default:verve"`
-	Number           string    `json:"number"`
-	Currency         string    `json:"currency" binding:"default:'NG'"`
-	Status           string    `json:"status" binding:"default:'active'"`
-	Lock             bool      `json:"lock" binding:"default:false"`
-	CardAuth         string    `json:"card_auth" binding:"required;default:1234"`
-	Summary          string    `json:"summary"`
-	User             `json:"user" binding:"required"`
-	SpendingControls `json:"spendingControls"`
+	Name             string           `json:"card_name" binding:"required"`
+	Company          uuid.UUID        `json:"company,omitempty" binding:"required"`
+	Type             string           `json:"type" binding:"required" form:"default:virtual"`
+	Brand            string           `json:"brand" binding:"required" form:"default:verve"`
+	Status           string           `json:"status" form:"default:'active'"`
+	Summary          string           `json:"summary"`
+	User             User             `json:"user" binding:"required"`
+	SpendingControls SpendingControls `json:"spendingControls" binding:"required"`
 }
 
 // CreateSudoCardRequest DTO
 type CreateSudoCardRequest struct {
-	Type             string `json:"type"`
-	Name             string `json:"name"`
-	Brand            string `json:"brand"`
-	Number           string `json:"number,omitempty"`
-	Currency         string `json:"currency"`
-	Status           string `json:"status"`
-	CustomerID       string `json:"customerId"`
-	FundingSourceID  string `json:"fundingSourceId"`
-	SpendingControls `json:"spendingControls"`
+	Type             string           `json:"type"`
+	Brand            string           `json:"brand"`
+	Number           string           `json:"number,omitempty"`
+	Currency         string           `json:"currency"`
+	Status           string           `json:"status"`
+	CustomerID       string           `json:"customerId"`
+	FundingSourceID  string           `json:"fundingSourceId"`
+	SpendingControls SpendingControls `json:"spendingControls"`
 }
 
 // Company DTO
 type Company struct {
 	Name string `json:"name"`
+}
+
+type Individual struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
 // BillingAddress DTO
@@ -83,7 +82,8 @@ type BillingAddress struct {
 type CreateCustomerRequest struct {
 	Type           string `json:"type"`
 	Company        `json:"company"`
-	Status         string `json:"status;"`
+	Individual     `json:"individual"`
+	Status         string `json:"status"`
 	BillingAddress `json:"billingAddress"`
 	Name           string `json:"name"`
 	Phone          string `json:"phoneNumber"`
@@ -92,8 +92,8 @@ type CreateCustomerRequest struct {
 
 // CreateSudoCustomerResponse DTO
 type CreateSudoCustomerResponse struct {
-	StatusCode int    `json:"statusCode"`
-	Message    string `json:"message"`
+	StatusCode int         `json:"statusCode"`
+	Message    interface{} `json:"message"`
 	Data       struct {
 		Business    string `json:"business"`
 		Type        string `json:"type"`
@@ -162,8 +162,9 @@ type ChangeCardPinRequest struct {
 
 // CreateSudoCardResponse DTO response for create card
 type CreateSudoCardResponse struct {
-	StatusCode int    `json:"statusCode"`
-	Message    string `json:"message"`
+	StatusCode int         `json:"statusCode"`
+	Message    interface{} `json:"message"`
+	Error      string      `json:"error"`
 	Data       struct {
 		Business         string `json:"business"`
 		Customer         string `json:"customer"`
@@ -251,4 +252,10 @@ type GetSingleCardResponse struct {
 	Success bool            `json:"success"`
 	Message string          `json:"message"`
 	Data    GetCardResponse `json:"data"`
+}
+
+type ProcessCardUpdate struct {
+	StatusCode int         `json:"statusCode"`
+	Message    interface{} `json:"message"`
+	Error      string      `json:"error"`
 }

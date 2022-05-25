@@ -21,7 +21,6 @@ func NewAddressRepository(db *gorm.DB) ports.IAddressRepository {
 func (a *addressRepository) GetByID(id string) (*domain.Address, error) {
 	var address domain.Address
 	if err := a.db.Where("id = ?", id).
-		Preload("Company").
 		First(&address).Error; err != nil {
 		return nil, err
 	}

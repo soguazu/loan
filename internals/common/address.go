@@ -12,6 +12,7 @@ type UpdateAddressRequest struct {
 	State              *string `json:"state,omitempty"`
 	Country            *string `json:"country,omitempty"`
 	UtilityBill        *string `json:"utility_bill,omitempty"`
+	PostalCode         *string `json:"postal_code,omitempty"`
 }
 
 // GetAddressResponse DTO
@@ -61,4 +62,5 @@ type CreateAddressRequest struct {
 	State              string    `json:"state" binding:"required"`
 	Country            string    `json:"country" binding:"required"`
 	UtilityBill        string    `json:"utility_bill" binding:"required"`
+	PostalCode         string    `json:"postal_code" binding:"required"`
 }
