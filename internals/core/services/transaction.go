@@ -76,15 +76,6 @@ func (ts *transactionService) GetAllTransaction(pagination *utils.Pagination) (*
 }
 
 func (ts *transactionService) CreateTransaction(body *common.CreateTransactionRequest) error {
-
-	if strings.ToLower(strings.TrimSpace(body.Type)) == "transaction.created" {
-		fmt.Println("Just got here", body)
-	}
-	fmt.Println(body)
-	var (
-		chargeIdentify common.PricingIdentifier
-	)
-
 	payload := body.Data.Object
 	customerEntity := domain.Customer{
 		PartnerCustomerID: payload.Customer.Id,
@@ -95,95 +86,182 @@ func (ts *transactionService) CreateTransaction(body *common.CreateTransactionRe
 		return err
 	}
 
-	channel := strings.ToLower(payload.TransactionMetadata.Channel)
-
-	if channel == "web" || channel == "pos" {
-		chargeIdentify = common.CardTransactionBOTH
-	} else if channel == "atm" {
-		chargeIdentify = common.CardTransactionATM
-	} else if channel == "" {
-		return errors.New("invalid channel")
-	}
-
-	identifier, err := ts.FeeRepository.GetByIdentifier(string(chargeIdentify))
-
-	if err != nil {
-		return err
-	}
-
-	fee := identifier.Fee / 100 * float64(payload.PendingRequest.Amount)
-
-	totalAmount := fee + float64(payload.PendingRequest.Amount)
-
 	wallet, err := ts.WalletRepository.GetByCompany(customer.Company.String())
 
 	if err != nil {
 		return err
 	}
 
-	debitWallet := common.UpdateWalletRequest{
-		CreditLimit:     &wallet.CreditLimit,
-		PreviousBalance: &wallet.PreviousBalance,
-		CurrentSpending: &wallet.CurrentSpending,
-		Payment:         &totalAmount,
+	if strings.ToLower(strings.TrimSpace(body.Type)) == "transaction.created" {
+		fmt.Println("Just got here", body, "transaction.created")
+
+		err := ts.ProcessTransactionState(body, wallet)
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	} else if strings.ToLower(strings.TrimSpace(body.Type)) == "authorization.request" {
+
+		var (
+			chargeIdentify common.PricingIdentifier
+		)
+
+		channel := strings.ToLower(payload.TransactionMetadata.Channel)
+
+		if channel == "web" || channel == "pos" {
+			chargeIdentify = common.CardTransactionBOTH
+		} else if channel == "atm" {
+			chargeIdentify = common.CardTransactionATM
+		} else if channel == "" {
+			return errors.New("invalid channel")
+		}
+
+		identifier, err := ts.FeeRepository.GetByIdentifier(string(chargeIdentify))
+
+		if err != nil {
+			return err
+		}
+
+		fee := identifier.Fee / 100 * float64(payload.PendingRequest.Amount)
+
+		totalAmount := fee + float64(payload.PendingRequest.Amount)
+
+		totalAmountInKoBo := utils.ToMinorUnit(totalAmount)
+
+		debitWallet := common.UpdateWalletRequest{
+			CreditLimit:     &wallet.CreditLimit,
+			PreviousBalance: &wallet.PreviousBalance,
+			CurrentSpending: &wallet.CurrentSpending,
+			Payment:         &totalAmountInKoBo,
+		}
+
+		_, err = ts.WalletService.UpdateBalance(wallet.ID.String(), debitWallet)
+
+		if err != nil {
+			return err
+		}
+
+		card, err := ts.CardRepository.GetBy(body.Data.Object.Card.Id)
+
+		if err != nil {
+			return err
+		}
+
+		feeTransaction := domain.Transaction{
+			Company:           wallet.Company,
+			Wallet:            wallet.ID,
+			Card:              card.ID,
+			PartnerCardID:     card.PartnerCardID,
+			Customer:          customer.ID,
+			PartnerCustomerID: customer.PartnerCustomerID,
+			Debit:             fee,
+			Note:              fmt.Sprintf("%v was debitted for transaction fee", fee),
+			ReferenceID:       body.Id,
+			Status:            domain.PendingStatus,
+			Entry:             domain.DebitEntry,
+			Channel:           domain.TransactionChannel(payload.TransactionMetadata.Channel),
+			Type:              domain.TransactionType(strings.ToUpper(strings.TrimSpace(body.Type))),
+			CardType:          domain.CardType(payload.Card.Type),
+		}
+
+		transaction := domain.Transaction{
+			Company:           wallet.Company,
+			Wallet:            wallet.ID,
+			Card:              card.ID,
+			PartnerCardID:     card.PartnerCardID,
+			Customer:          customer.ID,
+			PartnerCustomerID: customer.PartnerCustomerID,
+			Debit:             fee,
+			Note:              fmt.Sprintf("%v was debitted for transaction", payload.PendingRequest.Amount),
+			ReferenceID:       body.Id,
+			Status:            domain.PendingStatus,
+			Entry:             domain.DebitEntry,
+			Channel:           domain.TransactionChannel(payload.TransactionMetadata.Channel),
+			Type:              domain.TransactionType(strings.ToUpper(strings.TrimSpace(body.Type))),
+			CardType:          domain.CardType(payload.Card.Type),
+		}
+
+		err = ts.TransactionRepository.Persist(&feeTransaction)
+		if err != nil {
+			return err
+		}
+
+		err = ts.TransactionRepository.Persist(&transaction)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
-	_, err = ts.WalletService.UpdateBalance(wallet.ID.String(), debitWallet)
+	return errors.New("invalid webhook")
+}
 
-	if err != nil {
-		return err
+func (ts *transactionService) ProcessTransactionState(body *common.CreateTransactionRequest, wallet *domain.Wallet) error {
+	if strings.ToLower(strings.TrimSpace(body.Data.Object.Status)) == "approved" {
+		transactionEntity := domain.Transaction{
+			ReferenceID: body.Id,
+		}
+
+		transactions, err := ts.TransactionRepository.GetBy(transactionEntity)
+
+		if err != nil {
+			return err
+		}
+
+		for _, transaction := range transactions {
+			transaction.Status = domain.SuccessStatus
+			ts.TransactionRepository.Persist(&transaction)
+		}
+
+		return nil
+
+	} else if strings.ToLower(strings.TrimSpace(body.Data.Object.Status)) == "failed" {
+		var charges float64
+		var err error
+
+		transactionEntity := domain.Transaction{
+			ReferenceID: body.Id,
+		}
+
+		transactions, err := ts.TransactionRepository.GetBy(transactionEntity)
+
+		if err != nil {
+			return err
+		}
+
+		for _, transaction := range transactions {
+			transaction.Status = domain.FailedStatus
+			charges += transaction.Debit
+			ts.TransactionRepository.Persist(&transaction)
+
+			newTransaction := &domain.Transaction{
+				Company:           transaction.Company,
+				Wallet:            wallet.ID,
+				Card:              transaction.Card,
+				PartnerCardID:     transaction.PartnerCardID,
+				Customer:          transaction.Customer,
+				PartnerCustomerID: transaction.PartnerCustomerID,
+				Debit:             transaction.Debit,
+				Note:              fmt.Sprintf("%v was refunded for failed transaction", transaction.Debit),
+				ReferenceID:       body.Id,
+				Status:            domain.SuccessStatus,
+				Entry:             domain.CreditEntry,
+				Channel:           transaction.Channel,
+				Type:              domain.RefundType,
+			}
+
+			ts.TransactionRepository.Persist(newTransaction)
+
+		}
+
+		chargesInKobo := utils.ToMinorUnit(charges)
+
+		ts.WalletService.CreditWallet(wallet, chargesInKobo)
 	}
 
-	card, err := ts.CardRepository.GetBy(body.Data.Object.Card.Id)
-
-	if err != nil {
-		return err
-	}
-
-	feeTransaction := domain.Transaction{
-		Company:           wallet.Company,
-		Wallet:            wallet.ID,
-		Card:              card.ID,
-		PartnerCardID:     card.PartnerCardID,
-		Customer:          customer.ID,
-		PartnerCustomerID: customer.PartnerCustomerID,
-		Debit:             fee,
-		Note:              fmt.Sprintf("%v was debitted for transaction fee", fee),
-		ReferenceID:       body.Data.Id,
-		Status:            domain.PendingStatus,
-		Entry:             domain.DebitEntry,
-		Channel:           domain.TransactionChannel(payload.TransactionMetadata.Channel),
-		Type:              domain.TransactionType(strings.ToUpper(strings.TrimSpace(body.Type))),
-		CardType:          domain.CardType(payload.Card.Type),
-	}
-
-	transaction := domain.Transaction{
-		Company:           wallet.Company,
-		Wallet:            wallet.ID,
-		Card:              card.ID,
-		PartnerCardID:     card.PartnerCardID,
-		Customer:          customer.ID,
-		PartnerCustomerID: customer.PartnerCustomerID,
-		Debit:             fee,
-		Note:              fmt.Sprintf("%v was debitted for transaction", payload.PendingRequest.Amount),
-		ReferenceID:       payload.Id,
-		Status:            domain.PendingStatus,
-		Entry:             domain.DebitEntry,
-		Channel:           domain.TransactionChannel(payload.TransactionMetadata.Channel),
-		Type:              domain.TransactionType(strings.ToUpper(strings.TrimSpace(body.Type))),
-		CardType:          domain.CardType(payload.Card.Type),
-	}
-
-	err = ts.TransactionRepository.Persist(&feeTransaction)
-	if err != nil {
-		return err
-	}
-
-	err = ts.TransactionRepository.Persist(&transaction)
-	if err != nil {
-		return err
-	}
-	return nil
+	return errors.New("invalid webhook")
 }
 
 func (ts *transactionService) UpdateTransaction(id string, body common.UpdateTransactionRequest) (*domain.Transaction, error) {

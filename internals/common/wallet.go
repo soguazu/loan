@@ -7,11 +7,11 @@ import (
 
 // UpdateWalletRequest DTO to update wallet
 type UpdateWalletRequest struct {
-	CreditLimit     *int64   `json:"credit_limit,omitempty"`
-	PreviousBalance *int64   `json:"previous_balance,omitempty"`
-	CurrentSpending *int64   `json:"current_spending,omitempty"`
-	Payment         *float64 `json:"payment,omitempty"`
-	Type            *string  `json:"type,omitempty"`
+	CreditLimit     *int64  `json:"credit_limit,omitempty"`
+	PreviousBalance *int64  `json:"previous_balance,omitempty"`
+	CurrentSpending *int64  `json:"current_spending,omitempty"`
+	Payment         *int64  `json:"payment,omitempty"`
+	Type            *string `json:"type,omitempty"`
 }
 
 // GetWalletResponse DTO

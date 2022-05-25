@@ -55,6 +55,14 @@ func (t *transactionRepository) GetTransactionByCardID(id string, pagination *ut
 	return pagination, nil
 }
 
+func (t *transactionRepository) GetBy(filter interface{}) ([]domain.Transaction, error) {
+	var transactions []domain.Transaction
+	if err := t.db.Model(&domain.Transaction{}).Find(&transactions, filter).Error; err != nil {
+		return nil, err
+	}
+	return transactions, nil
+}
+
 func (t *transactionRepository) Get(pagination *utils.Pagination) (*utils.Pagination, error) {
 	var transactions []domain.Transaction
 	if err := t.db.Scopes(utils.Paginate(transactions, pagination, t.db)).Find(&transactions).Error; err != nil {

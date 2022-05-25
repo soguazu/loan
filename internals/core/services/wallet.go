@@ -5,7 +5,6 @@ import (
 	"core_business/internals/core/domain"
 	"core_business/internals/core/ports"
 	tx "core_business/pkg/unit_of_work"
-	"core_business/pkg/utils"
 	"errors"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -74,6 +73,42 @@ func (ws *walletService) UpdateWallet(id string, body common.UpdateWalletRequest
 	return wallet, nil
 }
 
+func (ws *walletService) DebitWallet(wallet *domain.Wallet, chargesInKobo int64) (*domain.Wallet, error) {
+	transactionType := string(common.DebitTransaction)
+	walletEntity := common.UpdateWalletRequest{
+		CreditLimit:     &wallet.CreditLimit,
+		PreviousBalance: &wallet.PreviousBalance,
+		CurrentSpending: &wallet.CurrentSpending,
+		Type:            &transactionType,
+		Payment:         &chargesInKobo,
+	}
+
+	wallet, err := ws.UpdateBalance(wallet.ID.String(), walletEntity)
+	if err != nil {
+		return nil, err
+	}
+
+	return wallet, nil
+}
+
+func (ws *walletService) CreditWallet(wallet *domain.Wallet, chargesInKobo int64) (*domain.Wallet, error) {
+	transactionType := string(common.CreditTransaction)
+	walletEntity := common.UpdateWalletRequest{
+		CreditLimit:     &wallet.CreditLimit,
+		PreviousBalance: &wallet.PreviousBalance,
+		CurrentSpending: &wallet.CurrentSpending,
+		Type:            &transactionType,
+		Payment:         &chargesInKobo,
+	}
+
+	wallet, err := ws.UpdateBalance(wallet.ID.String(), walletEntity)
+	if err != nil {
+		return nil, err
+	}
+
+	return wallet, nil
+}
+
 func (ws *walletService) UpdateBalance(id string, body common.UpdateWalletRequest) (*domain.Wallet, error) {
 	uw := tx.NewGormUnitOfWork(ws.DB)
 	txx, err := uw.Begin()
@@ -90,18 +125,16 @@ func (ws *walletService) UpdateBalance(id string, body common.UpdateWalletReques
 		return nil, err
 	}
 
-	amountInKobo := utils.ToMinorUnit(*body.Payment)
-
 	if *body.Type == "debit" {
-		if wallet.AvailableCredit > amountInKobo {
-			wallet.CurrentSpending += amountInKobo
+		if wallet.AvailableCredit > *body.Payment {
+			wallet.CurrentSpending += *body.Payment
 			wallet.TotalBalance = wallet.CurrentSpending + (wallet.PreviousBalance - wallet.CashBackPayment)
 			wallet.AvailableCredit = wallet.CreditLimit - wallet.TotalBalance
 		} else {
 			return nil, errors.New("insufficient available credit")
 		}
 	} else if *body.Type == "credit" {
-		wallet.CashBackPayment += amountInKobo
+		wallet.CashBackPayment += *body.Payment
 		wallet.TotalBalance = wallet.CurrentSpending + (wallet.PreviousBalance - wallet.CashBackPayment)
 		wallet.AvailableCredit = wallet.CreditLimit - wallet.TotalBalance
 	}

@@ -74,6 +74,7 @@ func (cs *cardService) GetAllCard(pagination *utils.Pagination) (*utils.Paginati
 func (cs *cardService) CreateCard(body common.CreateCardRequest) (*domain.Card, error) {
 	var err error
 	var chargesIdentifier []common.PricingIdentifier
+	var chargesInKobo *int64
 
 	Headers := map[string]string{
 		"Accept":        "application/json; charset=utf-8",
@@ -127,6 +128,24 @@ func (cs *cardService) CreateCard(body common.CreateCardRequest) (*domain.Card, 
 		},
 	}
 
+	if strings.ToLower(body.Type) == "virtual" {
+		chargesIdentifier = common.VirtualCardIdentifier
+		chargesInKobo, err = cs.GetAllCharges(chargesIdentifier, &wallet[0])
+	} else if strings.ToLower(body.Type) == "physical" {
+		chargesIdentifier = common.PhysicalCardIdentifier
+		chargesInKobo, err = cs.GetAllCharges(chargesIdentifier, &wallet[0])
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	isBalanceSufficient := cs.BalanceSufficiency(&wallet[0], *chargesInKobo)
+
+	if !isBalanceSufficient {
+		return nil, errors.New("insufficient available credit")
+	}
+
 	sudoCustomer, err := cs.CreateSudoCustomer(customerDTO)
 
 	if err != nil {
@@ -170,13 +189,7 @@ func (cs *cardService) CreateCard(body common.CreateCardRequest) (*domain.Card, 
 		return nil, errors.New("error occurred creating card partner")
 	}
 
-	if strings.ToLower(body.Type) == "virtual" {
-		chargesIdentifier = common.VirtualCardIdentifier
-		err = cs.GetAllCharges(chargesIdentifier, &wallet[0])
-	} else if strings.ToLower(body.Type) == "physical" {
-		chargesIdentifier = common.PhysicalCardIdentifier
-		err = cs.GetAllCharges(chargesIdentifier, &wallet[0])
-	}
+	_, err = cs.WalletService.DebitWallet(&wallet[0], *chargesInKobo)
 
 	if err != nil {
 		return nil, err
@@ -250,8 +263,6 @@ func (cs *cardService) CreateSudoCustomer(customerDTO common.CreateCustomerReque
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println(response)
 
 	if response.StatusCode != 200 {
 		return nil, errors.New("error occurred creating customer partner")
@@ -519,28 +530,26 @@ func (cs *cardService) ChangeCardPin(id string, body common.ChangeCardPinRequest
 	return nil
 }
 
-func (cs *cardService) GetAllCharges(identifiers []common.PricingIdentifier, wallet *domain.Wallet) error {
+func (cs *cardService) BalanceSufficiency(wallet *domain.Wallet, chargesInKobo int64) bool {
+	if wallet.AvailableCredit > chargesInKobo {
+		return true
+	}
+	return false
+}
+
+func (cs *cardService) GetAllCharges(identifiers []common.PricingIdentifier, wallet *domain.Wallet) (*int64, error) {
 	var charges float64
 	for _, identifier := range identifiers {
 		fee, err := cs.FeeRepository.GetByIdentifier(string(identifier))
 		if err != nil {
-			return err
+			return nil, err
 		}
 		charges += fee.Fee
 	}
 
 	chargesInKobo := utils.ToMinorUnit(charges)
 
-	if wallet.AvailableCredit < chargesInKobo {
-		return errors.New("insufficient available credit")
-	}
-
-	_, err := cs.DebitWallet(wallet, charges)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return &chargesInKobo, nil
 }
 
 func (cs *cardService) LogTransactions(identifiers []common.PricingIdentifier, card *domain.Card) error {
@@ -581,22 +590,4 @@ func (cs *cardService) LogTransactions(identifiers []common.PricingIdentifier, c
 		}
 	}
 	return nil
-}
-
-func (cs *cardService) DebitWallet(wallet *domain.Wallet, charges float64) (*domain.Wallet, error) {
-	transactionType := string(common.DebitTransaction)
-	walletEntity := common.UpdateWalletRequest{
-		CreditLimit:     &wallet.CreditLimit,
-		PreviousBalance: &wallet.PreviousBalance,
-		CurrentSpending: &wallet.CurrentSpending,
-		Type:            &transactionType,
-		Payment:         &charges,
-	}
-
-	wallet, err := cs.WalletService.UpdateBalance(wallet.ID.String(), walletEntity)
-	if err != nil {
-		return nil, err
-	}
-
-	return wallet, nil
 }
