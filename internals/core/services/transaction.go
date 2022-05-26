@@ -130,11 +130,14 @@ func (ts *transactionService) CreateTransaction(body *common.CreateTransactionRe
 
 		totalAmountInKoBo := utils.ToMinorUnit(totalAmount)
 
+		entryType := string(domain.DebitEntry)
+		
 		debitWallet := common.UpdateWalletRequest{
 			CreditLimit:     &wallet.CreditLimit,
 			PreviousBalance: &wallet.PreviousBalance,
 			CurrentSpending: &wallet.CurrentSpending,
 			Payment:         &totalAmountInKoBo,
+			Entry:           &entryType,
 		}
 
 		_, err = ts.WalletService.UpdateBalance(wallet.ID.String(), debitWallet)
@@ -162,7 +165,7 @@ func (ts *transactionService) CreateTransaction(body *common.CreateTransactionRe
 			Status:            domain.PendingStatus,
 			Entry:             domain.DebitEntry,
 			Channel:           domain.TransactionChannel(payload.TransactionMetadata.Channel),
-			Type:              domain.TransactionType(strings.ToUpper(strings.TrimSpace(body.Type))),
+			Type:              domain.FeeType,
 			CardType:          domain.CardType(payload.Card.Type),
 		}
 
@@ -173,13 +176,13 @@ func (ts *transactionService) CreateTransaction(body *common.CreateTransactionRe
 			PartnerCardID:     card.PartnerCardID,
 			Customer:          customer.ID,
 			PartnerCustomerID: customer.PartnerCustomerID,
-			Debit:             fee,
+			Debit:             float64(payload.PendingRequest.Amount),
 			Note:              fmt.Sprintf("%v was debitted for transaction", payload.PendingRequest.Amount),
 			ReferenceID:       body.Id,
 			Status:            domain.PendingStatus,
 			Entry:             domain.DebitEntry,
 			Channel:           domain.TransactionChannel(payload.TransactionMetadata.Channel),
-			Type:              domain.TransactionType(strings.ToUpper(strings.TrimSpace(body.Type))),
+			Type:              domain.WithdrawalType,
 			CardType:          domain.CardType(payload.Card.Type),
 		}
 
@@ -250,6 +253,7 @@ func (ts *transactionService) ProcessTransactionState(body *common.CreateTransac
 				Entry:             domain.CreditEntry,
 				Channel:           transaction.Channel,
 				Type:              domain.RefundType,
+				ParentID:          transaction.ID.String(),
 			}
 
 			ts.TransactionRepository.Persist(newTransaction)

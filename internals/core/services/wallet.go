@@ -8,6 +8,7 @@ import (
 	"errors"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
+	"strings"
 )
 
 type walletService struct {
@@ -74,12 +75,12 @@ func (ws *walletService) UpdateWallet(id string, body common.UpdateWalletRequest
 }
 
 func (ws *walletService) DebitWallet(wallet *domain.Wallet, chargesInKobo int64) (*domain.Wallet, error) {
-	transactionType := string(common.DebitTransaction)
+	entryType := string(domain.DebitEntry)
 	walletEntity := common.UpdateWalletRequest{
 		CreditLimit:     &wallet.CreditLimit,
 		PreviousBalance: &wallet.PreviousBalance,
 		CurrentSpending: &wallet.CurrentSpending,
-		Type:            &transactionType,
+		Entry:           &entryType,
 		Payment:         &chargesInKobo,
 	}
 
@@ -92,12 +93,12 @@ func (ws *walletService) DebitWallet(wallet *domain.Wallet, chargesInKobo int64)
 }
 
 func (ws *walletService) CreditWallet(wallet *domain.Wallet, chargesInKobo int64) (*domain.Wallet, error) {
-	transactionType := string(common.CreditTransaction)
+	entryType := string(domain.CreditEntry)
 	walletEntity := common.UpdateWalletRequest{
 		CreditLimit:     &wallet.CreditLimit,
 		PreviousBalance: &wallet.PreviousBalance,
 		CurrentSpending: &wallet.CurrentSpending,
-		Type:            &transactionType,
+		Entry:           &entryType,
 		Payment:         &chargesInKobo,
 	}
 
@@ -125,7 +126,7 @@ func (ws *walletService) UpdateBalance(id string, body common.UpdateWalletReques
 		return nil, err
 	}
 
-	if *body.Type == "debit" {
+	if strings.ToLower(*body.Entry) == "debit" {
 		if wallet.AvailableCredit > *body.Payment {
 			wallet.CurrentSpending += *body.Payment
 			wallet.TotalBalance = wallet.CurrentSpending + (wallet.PreviousBalance - wallet.CashBackPayment)
@@ -133,7 +134,8 @@ func (ws *walletService) UpdateBalance(id string, body common.UpdateWalletReques
 		} else {
 			return nil, errors.New("insufficient available credit")
 		}
-	} else if *body.Type == "credit" {
+
+	} else if strings.ToLower(*body.Entry) == "credit" {
 		wallet.CashBackPayment += *body.Payment
 		wallet.TotalBalance = wallet.CurrentSpending + (wallet.PreviousBalance - wallet.CashBackPayment)
 		wallet.AvailableCredit = wallet.CreditLimit - wallet.TotalBalance

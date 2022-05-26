@@ -11,7 +11,7 @@ type UpdateWalletRequest struct {
 	PreviousBalance *int64  `json:"previous_balance,omitempty"`
 	CurrentSpending *int64  `json:"current_spending,omitempty"`
 	Payment         *int64  `json:"payment,omitempty"`
-	Type            *string `json:"type,omitempty"`
+	Entry           *string `json:"type,omitempty"`
 }
 
 // GetWalletResponse DTO
