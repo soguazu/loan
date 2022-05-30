@@ -13,7 +13,7 @@ type Pagination struct {
 	TotalRows  int64       `json:"total_rows"`
 	TotalPages int         `json:"total_pages"`
 	Rows       interface{} `json:"rows"`
-	Filter     string      `json:"filter"`
+	Filter     string      `form:"filter"`
 }
 
 // GetOffset calculate the offset

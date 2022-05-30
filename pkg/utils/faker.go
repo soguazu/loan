@@ -68,8 +68,8 @@ func (f *Faker) RandomFundSource() string {
 }
 
 // RandomNoOfEmployee generates random numbers of employee
-func (f *Faker) RandomNoOfEmployee() int32 {
-	return f.RandomInt(0, 10)
+func (f *Faker) RandomNoOfEmployee() string {
+	return string(f.RandomInt(0, 10))
 }
 
 // RandomNo generates random numbers

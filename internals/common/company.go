@@ -14,7 +14,7 @@ type CreateCompanyRequest struct {
 	Website       string    `json:"website"`
 	Type          string    `json:"type" binding:"required"`
 	FundingSource string    `json:"funding_source"`
-	NoOfEmployee  int32     `json:"no_of_employee"`
+	NoOfEmployee  string    `json:"no_of_employee"`
 }
 
 // GetCompanyResponse DTO
@@ -25,7 +25,7 @@ type GetCompanyResponse struct {
 	Website       string    `json:"website"`
 	Type          string    `json:"type"`
 	FundingSource string    `json:"funding_source"`
-	NoOfEmployee  int32     `json:"no_of_employee"`
+	NoOfEmployee  string    `json:"no_of_employee"`
 }
 
 // GetCompanyByIDRequest DTO to get company by id
@@ -52,7 +52,7 @@ type UpdateCompanyRequest struct {
 	Type          *string `json:"type,omitempty"`
 	Website       *string `json:"website,omitempty"`
 	FundingSource *string `json:"funding_source,omitempty"`
-	NoOfEmployee  *int32  `json:"no_of_employee,omitempty"`
+	NoOfEmployee  *string `json:"no_of_employee,omitempty"`
 }
 
 // CreateCompanyResponse DTO get all companies
@@ -245,9 +245,14 @@ type CreateCreditLimitIncreaseRequest struct {
 
 // UpdateCreditLimitIncreaseRequest DTO
 type UpdateCreditLimitIncreaseRequest struct {
-	DesiredCreditLimit *int64  `json:"desired_credit_limit" gorm:"index;not null"`
-	Reason             *string `json:"reason" gorm:"not null;index"`
-	Status             *bool   `json:"status" gorm:"not null;index;default:false"`
+	CreditLimitRequestID string `json:"credit_limit_request_id" gorm:"index;not null"`
+	Approve              bool   `json:"approve" gorm:"not null;index"`
+}
+
+// ApproveCreditLimitIncreaseDTO DTO
+type ApproveCreditLimitIncreaseDTO struct {
+	Company string `json:"credit_limit_request_id" gorm:"index;not null"`
+	ID      string `json:"approve" gorm:"not null;index"`
 }
 
 // GetCreditLimitIncrease DTO

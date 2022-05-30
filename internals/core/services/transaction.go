@@ -58,7 +58,7 @@ func (ts *transactionService) GetTransactionByCompanyID(id string, pagination *u
 }
 
 func (ts *transactionService) GetTransactionByCardID(id string, pagination *utils.Pagination) (*utils.Pagination, error) {
-	transactions, err := ts.TransactionRepository.GetTransactionByCompanyID(id, pagination)
+	transactions, err := ts.TransactionRepository.GetTransactionByCardID(id, pagination)
 	if err != nil {
 		ts.logger.Error(err)
 		return nil, err
@@ -131,7 +131,7 @@ func (ts *transactionService) CreateTransaction(body *common.CreateTransactionRe
 		totalAmountInKoBo := utils.ToMinorUnit(totalAmount)
 
 		entryType := string(domain.DebitEntry)
-		
+
 		debitWallet := common.UpdateWalletRequest{
 			CreditLimit:     &wallet.CreditLimit,
 			PreviousBalance: &wallet.PreviousBalance,
@@ -276,6 +276,10 @@ func (ts *transactionService) UpdateTransaction(id string, body common.UpdateTra
 
 	if body.Receipt != nil {
 		transaction.Receipt = *body.Receipt
+	}
+
+	if body.ExpenseCategory != nil {
+		transaction.ExpenseCategory = *body.ExpenseCategory
 	}
 
 	err = ts.TransactionRepository.Persist(transaction)

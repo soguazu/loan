@@ -71,7 +71,7 @@ type GetTransactionResponse struct {
 	ParentID          string             `json:"parent_id"` //Parent id for the refund
 	Lock              bool               `json:"lock"`
 	Receipt           string             `json:"receipt"`
-	ExpenseCategory   uuid.UUID          `json:"expense_category,omitempty"`
+	ExpenseCategory   string             `json:"expense_category,omitempty"`
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 	DeletedAt         *time.Time
