@@ -312,8 +312,8 @@ func (ch *companyHandler) RequestCreditLimitIncrease(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        id   path      string  true  "Company ID"
-// @Param creditLimit body common.CreateCreditLimitIncreaseRequest true "Request credit limit increase"
-// @Success      200  {object}  common.GetCreditLimitIncrease
+// @Param creditLimit body common.UpdateCreditLimitIncreaseRequest true "Request credit limit increase"
+// @Success      200  {object}  common.Message
 // @Failure      400  {object}  common.Error
 // @Failure      404  {object}  common.Error
 // @Failure      500  {object}  common.Error

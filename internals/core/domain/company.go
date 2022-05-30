@@ -13,7 +13,7 @@ type Company struct {
 	Website         string            `json:"website" gorm:"index"`
 	Type            string            `json:"type" gorm:"index"`
 	FundingSource   string            `json:"funding_source"`
-	NoOfEmployee    int32             `json:"no_of_employee" gorm:"not null;default:0"`
+	NoOfEmployee    string            `json:"no_of_employee" gorm:"not null;default:0"`
 	Address         []Address         `json:"address,omitempty" gorm:"ForeignKey:Company;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	BusinessHead    BusinessHead      `json:"business_head,omitempty" gorm:"ForeignKey:Company;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	BusinessPartner []BusinessPartner `json:"business_partner,omitempty" gorm:"ForeignKey:Company;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`

@@ -43,5 +43,6 @@ func (d *sqliteDatastore) MigrateAll(db *gorm.DB) error {
 		&domain.Card{},
 		&domain.Customer{},
 		&domain.Fee{},
+		&domain.CreditIncrease{},
 	)
 }

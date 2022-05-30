@@ -5,6 +5,7 @@ import (
 	"core_business/internals/core/ports"
 	"core_business/pkg/utils"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type transactionRepository struct {
@@ -21,10 +22,7 @@ func NewTransactionRepository(db *gorm.DB) ports.ITransactionRepository {
 func (t *transactionRepository) GetByID(id string) (*domain.Transaction, error) {
 	var transaction domain.Transaction
 	if err := t.db.Where("id = ?", id).
-		Preload("Company").
-		Preload("Customer").
-		Preload("Fee").
-		Preload("ExpenseCategory ").
+		Preload(clause.Associations).
 		First(&transaction).Error; err != nil {
 		return nil, err
 	}

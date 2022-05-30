@@ -461,34 +461,31 @@ func (c *companyService) UpdateRequestCreditLimitIncrease(params common.GetByIDR
 		return err
 	}
 
-	creditLimitRequest := domain.CreditIncrease{
-		Company: ID,
+	creditLimitRequestEntity := common.ApproveCreditLimitIncreaseDTO{
+		Company: ID.String(),
+		ID:      body.CreditLimitRequestID,
 	}
 
-	creditLimit, err := c.CreditLimitIncreaseRepository.GetBy(creditLimitRequest)
+	creditLimitRequest, err := c.CreditLimitIncreaseRepository.GetBy(creditLimitRequestEntity)
+	if err != nil {
+		return err
+	}
+
+	wallet, err := c.WalletRepository.GetByCompany(ID.String())
 
 	if err != nil {
 		c.logger.Error(err)
 		return err
 	}
 
-	if body.DesiredCreditLimit != nil {
-		creditLimit.DesiredCreditLimit = *body.DesiredCreditLimit
+	if body.Approve == true {
+		wallet.CreditLimit = creditLimitRequest.DesiredCreditLimit
+		c.WalletRepository.Persist(wallet)
+		c.CreditLimitIncreaseRepository.Delete(creditLimitRequest.ID.String())
+		return nil
 	}
 
-	if body.Reason != nil {
-		creditLimit.Reason = *body.Reason
-	}
+	c.CreditLimitIncreaseRepository.Delete(creditLimitRequest.ID.String())
+	return errors.New("request was rejected please try again or contact support")
 
-	if body.Status != nil {
-		creditLimit.Status = *body.Status
-	}
-
-	err = c.CreditLimitIncreaseRepository.Persist(creditLimit)
-
-	if err != nil {
-		c.logger.Error(err)
-		return err
-	}
-	return nil
 }

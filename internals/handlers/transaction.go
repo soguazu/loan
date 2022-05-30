@@ -137,7 +137,7 @@ func (th *transactionHandler) GetTransactionByCardID(c *gin.Context) {
 		return
 	}
 
-	transactions, err := th.TransactionService.GetTransactionByCompanyID(params.ID, &query)
+	transactions, err := th.TransactionService.GetTransactionByCardID(params.ID, &query)
 
 	if err != nil {
 		th.logger.Error(err)

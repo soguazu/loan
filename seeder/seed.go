@@ -4,6 +4,7 @@ import (
 	"core_business/internals/core/domain"
 	"core_business/pkg/config"
 	"core_business/pkg/database"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -30,12 +31,64 @@ func main() {
 		}
 	}()
 
+	fmt.Println("seeding data...")
 	seed(conn)
 
 }
 
 // seed the database with some data
 func seed(db *gorm.DB) error {
+
+	categories := []domain.ExpenseCategory{
+		{
+			Title: "Marketing",
+		},
+		{
+			Title: "Meetings",
+		},
+		{
+			Title: "Shipping/Logistics",
+		},
+		{
+			Title: "Food",
+		},
+		{
+			Title: "Fuel",
+		},
+		{
+			Title: "Car Rental/Rideshare",
+		},
+		{
+			Title: "Subscription",
+		},
+		{
+			Title: "Office Supplies",
+		},
+		{
+			Title: "Entertainment",
+		},
+		{
+			Title: "Maintenance",
+		},
+		{
+			Title: "Transportation",
+		},
+		{
+			Title: "Telecom/Airtime",
+		},
+		{
+			Title: "Flights",
+		},
+		{
+			Title: "Lodging",
+		},
+		{
+			Title: "Training",
+		},
+		{
+			Title: "Others",
+		},
+	}
 
 	pricing := []domain.Fee{
 		{
@@ -82,12 +135,22 @@ func seed(db *gorm.DB) error {
 		return err
 	}
 
-	if len(fees) > 0 {
-		return nil
+	if len(fees) < 1 {
+		if err := tx.Create(&pricing).Error; err != nil {
+			return err
+		}
 	}
 
-	if err := tx.Create(&pricing).Error; err != nil {
+	var expenseCategory []domain.ExpenseCategory
+
+	if err := tx.Find(&expenseCategory).Error; err != nil {
 		return err
+	}
+
+	if len(expenseCategory) < 1 {
+		if err := tx.Create(&categories).Error; err != nil {
+			return err
+		}
 	}
 
 	return tx.Commit().Error
