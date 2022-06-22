@@ -337,3 +337,85 @@ func (ch *cardHandler) ChangeCardPin(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result.ReturnSuccessMessage(message.GetResponseMessage(ch.handlerName, types.UPDATED)))
 }
+
+// AddPAN godoc
+// @Summary      add pan
+// @Description  add list of pan
+// @Tags         card
+// @Accept       json
+// @Produce      json
+// @Param card body common.AddPANRequest true "Lock card"
+// @Success      200  {object}  common.GetBasicMessage
+// @Failure      400  {object}  common.Error
+// @Failure      404  {object}  common.Error
+// @Failure      500  {object}  common.Error
+// @Router       /card/pan [post]
+func (ch *cardHandler) AddPAN(c *gin.Context) {
+	var body common.AddPANRequest
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		ch.logger.Error(err)
+		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
+		return
+	}
+
+	err := ch.CardService.AddPAN(body)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ch.logger.Error(err)
+			c.JSON(http.StatusNotFound, result.ReturnErrorResult(err.Error()))
+			return
+		}
+		ch.logger.Error(err)
+		c.JSON(http.StatusInternalServerError, result.ReturnErrorResult(err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, result.ReturnSuccessMessage(message.GetResponseMessage(ch.handlerName, types.ADDPAN)))
+}
+
+// GetSinglePAN godoc
+// @Summary      Get single card pan
+// @Description  gets a single card pan
+// @Tags         card
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  common.GetSinglePANResponse
+// @Failure      500  {object}  common.Error
+// @Router       /card/pan [get]
+func (ch *cardHandler) GetSinglePAN(c *gin.Context) {
+	pan, err := ch.CardService.GetSinglePAN()
+	if err != nil {
+		ch.logger.Error(err)
+		c.JSON(http.StatusInternalServerError, result.ReturnErrorResult(err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, result.ReturnSuccessResult(pan, message.GetResponseMessage(ch.handlerName, types.GETPAN)))
+
+}
+
+// DeletePAN godoc
+// @Summary      Delete pan number by ID
+// @Description  deletes pan number by id
+// @Tags         card
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "PAN ID"
+// @Failure      400  {object}  common.Error
+// @Failure      404  {object}  common.Error
+// @Failure      500  {object}  common.Error
+// @Router       /card/pan/{id} [delete]
+func (ch *cardHandler) DeletePAN(c *gin.Context) {
+	var query common.GetByIDRequest
+	if err := c.ShouldBindUri(&query); err != nil {
+		ch.logger.Error(err)
+		c.JSON(http.StatusBadRequest, result.ReturnErrorResult(err.Error()))
+		return
+	}
+	err := ch.CardService.DeletePAN(query.ID)
+	if err != nil {
+		ch.logger.Error(err)
+		c.JSON(http.StatusInternalServerError, result.ReturnErrorResult(err.Error()))
+		return
+	}
+	c.JSON(http.StatusNoContent, result.ReturnSuccessMessage(types.DELETEPAN))
+}

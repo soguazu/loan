@@ -58,6 +58,7 @@ func Injection() {
 
 		customerRepository = repositories.NewCustomerRepository(DBConnection)
 		feeRepository      = repositories.NewFeeRepository(DBConnection)
+		panRepository      = repositories.NewPANRepository(DBConnection)
 
 		transactionRepository = repositories.NewTransactionRepository(DBConnection)
 		transactionService    = services.NewTransactionService(transactionRepository,
@@ -67,7 +68,7 @@ func Injection() {
 
 		cardService = services.NewCardService(cardRepository, customerRepository,
 			addressRepository, companyRepository, feeRepository,
-			walletService, transactionRepository,
+			walletService, transactionRepository, panRepository,
 			walletRepository, logging)
 
 		cardHandler = handlers.NewCardHandler(cardService, logging, "Card")
@@ -148,6 +149,9 @@ func Injection() {
 	card.PATCH("/:id/cancel", cardHandler.CancelCard)
 	card.PATCH("/:id/lock", cardHandler.LockCard)
 	card.PATCH("/:id/change-pin", cardHandler.ChangeCardPin)
+	card.POST("/pan", cardHandler.AddPAN)
+	card.GET("/pan", cardHandler.GetSinglePAN)
+	card.DELETE("/pan/:id", cardHandler.DeletePAN)
 
 	err := ginRoutes.SERVE()
 

@@ -30,6 +30,9 @@ type ICardService interface {
 	LockCard(id string, body common.ActionOnCardRequest) (*domain.Card, error)
 	CancelCard(id string, body common.ChangeCardStatusRequest) error
 	ChangeCardPin(id string, body common.ChangeCardPinRequest) error
+	AddPAN(body common.AddPANRequest) error
+	GetSinglePAN() (*domain.PAN, error)
+	DeletePAN(id string) error
 }
 
 // ICardHandler defines the interface for card handler
@@ -42,4 +45,7 @@ type ICardHandler interface {
 	CancelCard(c *gin.Context)
 	ChangeCardPin(c *gin.Context)
 	LockCard(c *gin.Context)
+	AddPAN(c *gin.Context)
+	GetSinglePAN(c *gin.Context)
+	DeletePAN(c *gin.Context)
 }

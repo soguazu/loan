@@ -7,7 +7,7 @@ import (
 // UpdateBusinessPartnerRequest DTO to update business partner
 type UpdateBusinessPartnerRequest struct {
 	Name  *string `json:"name,omitempty"`
-	Phone *string `json:"phone,omitempty" binding:"e164"`
+	Phone *string `json:"phone,omitempty"`
 }
 
 // GetBusinessPartnerResponse DTO

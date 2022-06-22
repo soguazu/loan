@@ -44,7 +44,7 @@ type FilterBusinessHeadDataResponse struct {
 type CreateBusinessHeadRequest struct {
 	Company                uuid.UUID `json:"company" binding:"required"`
 	JobTitle               string    `json:"job_title" binding:"required"`
-	Phone                  string    `json:"phone" binding:"required,e164"`
+	Phone                  string    `json:"phone" binding:"required"`
 	IdentificationType     string    `json:"identification_type" binding:"required"`
 	IdentificationNumber   string    `json:"identification_number" binding:"required"`
 	IdentificationImageURL string    `json:"identification_image_url" binding:"required"`

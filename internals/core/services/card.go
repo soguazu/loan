@@ -25,6 +25,7 @@ type cardService struct {
 	WalletService         ports.IWalletService
 	AddressRepository     ports.IAddressRepository
 	TransactionRepository ports.ITransactionRepository
+	PANRepository         ports.IPANRepository
 	FeeRepository         ports.IFeeRepository
 	logger                *log.Logger
 }
@@ -32,7 +33,7 @@ type cardService struct {
 // NewCardService function create a new instance for service
 func NewCardService(cr ports.ICardRepository, csr ports.ICustomerRepository,
 	ar ports.IAddressRepository, cmr ports.ICompanyRepository, fr ports.IFeeRepository,
-	ws ports.IWalletService, tr ports.ITransactionRepository,
+	ws ports.IWalletService, tr ports.ITransactionRepository, pr ports.IPANRepository,
 	wr ports.IWalletRepository, l *log.Logger) ports.ICardService {
 	return &cardService{
 		CardRepository:        cr,
@@ -43,6 +44,7 @@ func NewCardService(cr ports.ICardRepository, csr ports.ICustomerRepository,
 		WalletService:         ws,
 		WalletRepository:      wr,
 		TransactionRepository: tr,
+		PANRepository:         pr,
 		logger:                l,
 	}
 }
@@ -95,7 +97,15 @@ func (cs *cardService) CreateCard(body common.CreateCardRequest) (*domain.Card, 
 		return nil, err
 	}
 
+	if len(address) < 1 {
+		return nil, errors.New("company address not set")
+	}
+
 	wallet, err := cs.WalletRepository.GetBy(walletEntity)
+
+	if len(wallet) < 1 {
+		return nil, errors.New("account has not been integrated")
+	}
 
 	if err != nil {
 		return nil, err
@@ -163,11 +173,13 @@ func (cs *cardService) CreateCard(body common.CreateCardRequest) (*domain.Card, 
 		PostalCode:        sudoCustomer.Data.BillingAddress.PostalCode,
 	}
 
-	cardEntity := cs.ReturnCardObj(&body, sudoCustomer)
+	cardEntity, err := cs.ReturnCardObj(&body, sudoCustomer)
 
-	if cardEntity == nil {
-		return nil, errors.New("invalid card brand")
+	if err != nil {
+		return nil, err
 	}
+
+	fmt.Println(cardEntity)
 
 	byteBody, err := json.Marshal(cardEntity)
 
@@ -184,6 +196,8 @@ func (cs *cardService) CreateCard(body common.CreateCardRequest) (*domain.Card, 
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println(response)
 
 	if response.StatusCode != 200 {
 		return nil, errors.New("error occurred creating card partner")
@@ -272,7 +286,7 @@ func (cs *cardService) CreateSudoCustomer(customerDTO common.CreateCustomerReque
 }
 
 func (cs *cardService) ReturnCardObj(body *common.CreateCardRequest,
-	sudoCustomer *common.CreateSudoCustomerResponse) *common.CreateSudoCardRequest {
+	sudoCustomer *common.CreateSudoCustomerResponse) (*common.CreateSudoCardRequest, error) {
 	var card common.CreateSudoCardRequest
 
 	if strings.ToLower(body.Type) == "virtual" {
@@ -286,20 +300,55 @@ func (cs *cardService) ReturnCardObj(body *common.CreateCardRequest,
 			SpendingControls: body.SpendingControls,
 		}
 	} else if strings.ToLower(body.Type) == "physical" {
-		card = common.CreateSudoCardRequest{
-			Type:            body.Type,
-			Brand:           cs.Capitalize(strings.ToLower(body.Brand)),
-			Currency:        common.Currency,
-			Status:          body.Status,
-			CustomerID:      sudoCustomer.Data.ID,
-			FundingSourceID: config.Instance.FundingSource,
-			Number:          "",
+		var pan *domain.PAN
+		var sudoPAN *common.SudoPANNumber
+		var err error
+		var number string
+
+		if config.Instance.Env == "development" {
+			sudoPAN, err = cs.GetPANSudo()
+
+			if sudoPAN == nil {
+				return nil, errors.New("no PAN available on partner")
+			}
+
+			if err != nil {
+				return nil, err
+			}
+
+			fmt.Println(sudoPAN, "$$$$$")
+			number = sudoPAN.Data.Number
+
+		} else if config.Instance.Env == "production" {
+			pan, err = cs.PANRepository.GetFirstOne()
+
+			if pan == nil {
+				return nil, errors.New("no PAN available")
+			}
+
+			if err != nil {
+				return nil, err
+			}
+
+			number = pan.Number
 		}
+
+		card = common.CreateSudoCardRequest{
+			Type:             body.Type,
+			Brand:            cs.Capitalize(strings.ToLower(body.Brand)),
+			Currency:         common.Currency,
+			Status:           body.Status,
+			CustomerID:       sudoCustomer.Data.ID,
+			FundingSourceID:  config.Instance.FundingSource,
+			Number:           number,
+			SpendingControls: body.SpendingControls,
+		}
+
 	} else {
-		return nil
+		return nil, errors.New("invalid card type")
 	}
 
-	return &card
+	return &card, nil
 }
 
 func (cs *cardService) Capitalize(value string) string {
@@ -590,4 +639,56 @@ func (cs *cardService) LogTransactions(identifiers []common.PricingIdentifier, c
 		}
 	}
 	return nil
+}
+
+func (cs *cardService) AddPAN(body common.AddPANRequest) error {
+	var pans []domain.PAN
+
+	for _, pan := range body.Numbers {
+		pans = append(pans, domain.PAN{
+			Number: pan,
+		})
+	}
+
+	err := cs.PANRepository.BatchInsert(pans)
+	if err != nil {
+		cs.logger.Error(err)
+		return err
+	}
+	return nil
+}
+
+func (cs *cardService) GetSinglePAN() (*domain.PAN, error) {
+	pan, err := cs.PANRepository.GetFirstOne()
+	if err != nil {
+		return nil, err
+	}
+	return pan, nil
+}
+
+func (cs *cardService) DeletePAN(id string) error {
+	err := cs.PANRepository.Delete(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (cs *cardService) GetPANSudo() (*common.SudoPANNumber, error) {
+	byteResponse, err := CardRequest.GET("GET", "cards/simulator/generate", nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var response common.SudoPANNumber
+
+	err = json.Unmarshal(byteResponse, &response)
+
+	fmt.Println(response)
+
+	if response.StatusCode != 200 {
+		return nil, errors.New("error occurred updating card partner")
+	}
+	return &response, nil
 }
