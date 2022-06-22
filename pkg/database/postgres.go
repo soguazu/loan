@@ -45,5 +45,6 @@ func (d *datastore) MigrateAll(db *gorm.DB) error {
 		&domain.Transaction{},
 		&domain.Card{},
 		&domain.CreditIncrease{},
+		&domain.PAN{},
 	)
 }

@@ -18,6 +18,12 @@ const (
 	UNDERWRITING = "underwriting passed successfully"
 	// CREDITLIMIT creates types of response messages for patch endpoint
 	CREDITLIMIT = "credit limit updated successfully"
+	// ADDPAN creates types of response messages for patch endpoint
+	ADDPAN = "pan added successfully"
+	// GETPAN creates types of response messages for patch endpoint
+	GETPAN = "pan retrieved successfully"
+	// DELETEPAN creates types of response messages for patch endpoint
+	DELETEPAN = "pan deleted successfully"
 )
 
 // GetResponseMessage generates dynamic messages

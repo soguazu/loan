@@ -14,6 +14,12 @@ type GetAllResponse struct {
 	Data    utils.Pagination `json:"data"`
 }
 
+// GetBasicMessage DTO
+type GetBasicMessage struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
 // PricingIdentifier type
 type PricingIdentifier string
 
