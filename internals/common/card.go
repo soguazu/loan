@@ -140,17 +140,19 @@ type UpdateSudoCardRequest struct {
 
 // ActionOnCardRequest DTO lock card
 type ActionOnCardRequest struct {
-	Lock bool `json:"status" binding:"required"`
+	Lock bool `json:"lock"`
 }
 
 // ChangeCardStatusRequest DTO to change card status
 type ChangeCardStatusRequest struct {
 	Status string `json:"status" binding:"required"`
+	Reason string `json:"reason"`
 }
 
 // CancelCardRequest DTO to cancel card
 type CancelCardRequest struct {
 	Status           string `json:"status"`
+	Reason           string `json:"cancellationReason"`
 	SpendingControls `json:"spendingControls"`
 }
 

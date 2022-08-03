@@ -159,6 +159,7 @@ func (cs *cardService) CreateCard(body common.CreateCardRequest) (*domain.Card, 
 	sudoCustomer, err := cs.CreateSudoCustomer(customerDTO)
 
 	if err != nil {
+		fmt.Println(err, "####")
 		return nil, err
 	}
 
@@ -218,6 +219,7 @@ func (cs *cardService) CreateCard(body common.CreateCardRequest) (*domain.Card, 
 	card := &domain.Card{
 		Company:           company.ID,
 		Wallet:            wallet[0].ID,
+		Name:              fmt.Sprintf("%v %v", body.User.FirstName, body.User.LastName),
 		PartnerCustomerID: sudoCustomer.Data.ID,
 		PartnerCardID:     response.Data.ID,
 		Type:              response.Data.Type,
@@ -405,16 +407,11 @@ func (cs *cardService) UpdateCard(id string, body common.UpdateSudoCardRequest) 
 		return nil, err
 	}
 
-	fmt.Println("got here", string(byteBody))
-
 	url := fmt.Sprintf("%v/%v", "cards", card.PartnerCardID)
-
-	fmt.Println(url, "url")
 
 	byteResponse, err := CardRequest.CHANGE(http.MethodPut, url, byteBody)
 
 	if err != nil {
-		fmt.Println("E HAPPEN")
 		return nil, err
 	}
 
@@ -472,7 +469,7 @@ func (cs *cardService) CancelCard(id string, body common.ChangeCardStatusRequest
 		return err
 	}
 
-	isValid := body.Status != "active" && body.Status != "inactive" && body.Status != "cancelled"
+	isValid := body.Status != "active" && body.Status != "inactive" && body.Status != "canceled"
 
 	if isValid {
 		return errors.New("invalid status")
@@ -485,8 +482,13 @@ func (cs *cardService) CancelCard(id string, body common.ChangeCardStatusRequest
 		},
 	}
 
+	if body.Reason == "" {
+		body.Reason = "lost"
+	}
+
 	request := common.CancelCardRequest{
 		Status: body.Status,
+		Reason: body.Reason,
 		SpendingControls: common.SpendingControls{
 			SpendingLimits: listOfSpendingLimits,
 			Channels: common.Channels{

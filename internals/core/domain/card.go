@@ -17,10 +17,10 @@ type SpendingLimits struct {
 }
 
 type SpendingControls struct {
-	Channels          Channels       `gorm:"-"`
+	Channels          Channels       `gorm:"json"`
 	AllowedCategories []string       `json:"allowedCategories"`
 	BlockedCategories []string       `json:"blockedCategories"`
-	SpendingLimits    SpendingLimits `gorm:"-"`
+	SpendingLimits    SpendingLimits `gorm:"json"`
 }
 
 // Card model
@@ -42,7 +42,7 @@ type Card struct {
 	Summary           string           `json:"summary"`
 	Transactions      []Transaction    `json:"transaction,omitempty" gorm:"ForeignKey:Card;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Customer          uuid.UUID        `json:"customer" gorm:"column:customer"`
-	SpendingControls  SpendingControls `json:"_" gorm:"-"`
+	SpendingControls  SpendingControls `json:"spending-controls" gorm:"json"`
 	Business          string           `json:"business"`
 	Account           string           `json:"account"`
 	MaskedPan         string           `json:"maskedPan" gorm:"index;not null"`
