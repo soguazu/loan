@@ -140,7 +140,7 @@ type UpdateSudoCardRequest struct {
 
 // ActionOnCardRequest DTO lock card
 type ActionOnCardRequest struct {
-	Lock bool `json:"lock"`
+	Lock bool `json:"status"`
 }
 
 // ChangeCardStatusRequest DTO to change card status
