@@ -1,4 +1,4 @@
-FROM golang:1.18.0 as builder
+FROM 1.18.3-alpine3.16 as builder
 
 RUN apk --no-cache add gcc g++ make git
 

@@ -184,10 +184,8 @@ func (th *transactionHandler) GetAllTransaction(c *gin.Context) {
 // @Tags         transaction
 // @Accept       json
 // @Produce      json
-// @Param        limit   query  int  false  "Page size"
-// @Param        page   query  int  false  "Page no"
-// @Param        sort   query  string  false  "Sort by"
-// @Success      200  {object}  common.GetAllResponse
+// @Param transaction body common.CreateTransactionRequest true "Add transaction"
+// @Success      200  {object}  common.GetBasicMessage
 // @Failure      500  {object}  common.Error
 // @Router       /transaction/webhook [post]
 func (th *transactionHandler) CreateTransaction(c *gin.Context) {

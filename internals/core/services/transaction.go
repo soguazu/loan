@@ -81,6 +81,12 @@ func (ts *transactionService) CreateTransaction(body *common.CreateTransactionRe
 		PartnerCustomerID: payload.Customer.Id,
 	}
 
+	card, err := ts.CardRepository.GetBy(payload.Card.Id)
+
+	if err != nil || card.Lock == true {
+		return errors.New("card is invalid")
+	}
+
 	customer, err := ts.CustomerRepository.GetBy(customerEntity)
 	if err != nil {
 		return err

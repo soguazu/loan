@@ -17,7 +17,7 @@ dev: vet
 	@reflex -r '.go' -s -- go run cmd/main.go
 
 postgres:
-	docker run --rm -it --name postgresEvea -p 5433:5432 -e POSTGRES_USER=root  -e POSTGRES_PASSWORD=e4dd99ae701 -d postgres:13.6-alpine
+	docker run --rm -it --name postgresEvea -v ~/pg_data:/var/lib/postgresql/data -p 5433:5432 -e POSTGRES_USER=root  -e POSTGRES_PASSWORD=e4dd99ae701 -d postgres:13.6-alpine
 .PHONY:postgres
 
 createdb:
