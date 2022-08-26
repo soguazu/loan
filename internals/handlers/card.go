@@ -72,7 +72,7 @@ func (ch *cardHandler) GetCardByID(c *gin.Context) {
 // @Param        limit   query  int  false  "Page size"
 // @Param        page   query  int  false  "Page no"
 // @Param        sort   query  string  false  "Sort by"
-// @Param        filter   query  string  false  "Sort by"
+// @Param        filter   query  string  false  "type"
 // @Success      200  {object}  common.GetAllResponse
 // @Failure      500  {object}  common.Error
 // @Router       /card/company/{id} [get]
